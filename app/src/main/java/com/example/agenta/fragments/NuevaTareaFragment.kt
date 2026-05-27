@@ -1,0 +1,59 @@
+package com.example.agenta.fragments
+
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
+import com.example.agenta.R
+import com.example.agenta.models.Tarea
+import com.example.agenta.models.TareaViewModel
+
+class NuevaTareaFragment : Fragment() {
+
+    private lateinit var viewModel: TareaViewModel
+
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val view = inflater.inflate(R.layout.fragment_second, container, false)
+        viewModel = ViewModelProvider(requireActivity())[TareaViewModel::class.java]
+
+        val etMateria = view.findViewById<EditText>(R.id.etMateria)
+        val etNombreTarea = view.findViewById<EditText>(R.id.etNombreTarea) // Antes etTituloTarea
+        val etFechaEntrega = view.findViewById<EditText>(R.id.etFechaEntrega)
+        val etEspecificaciones = view.findViewById<EditText>(R.id.etEspecificaciones)
+        val btnGuardar = view.findViewById<Button>(R.id.btnGuardarTarea)
+
+        btnGuardar.setOnClickListener {
+            val materia = etMateria.text.toString().trim()
+            val nombreTarea = etNombreTarea.text.toString().trim()
+            val fecha = etFechaEntrega.text.toString().trim()
+            val especificaciones = etEspecificaciones.text.toString().trim()
+
+            if (materia.isNotEmpty() && nombreTarea.isNotEmpty()) {
+                val nuevaTarea = Tarea(
+                    id = 0,
+                    materia = materia,
+                    titulo = nombreTarea,
+                    fechaEntrega = if (fecha.isNotEmpty()) fecha else "Sin fecha",
+                    descripcion = especificaciones
+                )
+                viewModel.agregarTarea(nuevaTarea)
+
+                Toast.makeText(context, "Tarea '$nombreTarea' guardada con éxito", Toast.LENGTH_SHORT).show()
+                findNavController().popBackStack()
+            } else {
+                Toast.makeText(context, "Por favor, llena los campos obligatorios (Materia y Tarea)", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        return view
+    }
+}
