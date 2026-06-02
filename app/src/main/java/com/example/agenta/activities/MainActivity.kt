@@ -55,10 +55,9 @@ class MainActivity : AppCompatActivity() {
             navController.navigate(R.id.registerFragment)
         }
 
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null)
-                .setAnchorView(R.id.fab).show()
+        binding.fab.setImageResource(R.drawable.ic_pet)
+        binding.fab.setOnClickListener {
+            navController.navigate(R.id.mascotaFragment)
         }
     }
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

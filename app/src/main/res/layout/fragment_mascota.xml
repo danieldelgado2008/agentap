@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center_horizontal">
+
+    <TextView
+        android:id="@+id/tvPuntos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Puntos: 0"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#6200EE"
+        android:layout_marginBottom="16dp"/>
+
+    <FrameLayout
+        android:layout_width="180dp"
+        android:layout_height="180dp"
+        android:layout_marginBottom="16dp">
+
+        <ImageView
+            android:id="@+id/imgPet"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="Mascota"
+            android:src="@drawable/ic_pet" />
+
+        <ImageView
+            android:id="@+id/imgHat"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="Sombrero"
+            android:src="@drawable/ic_hat"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/imgGlasses"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="Lentes"
+            android:src="@drawable/ic_glasses"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/imgBowtie"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="Moño"
+            android:src="@drawable/ic_bowtie"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/imgCrown"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="Corona"
+            android:src="@drawable/ic_crown"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/imgCape"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="Capa"
+            android:src="@drawable/ic_cape"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/imgNecklace"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="Collar"
+            android:src="@drawable/ic_necklace"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/imgMustache"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:contentDescription="Bigote"
+            android:src="@drawable/ic_mustache"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tienda de Accesorios"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="8dp"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <androidx.gridlayout.widget.GridLayout
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:columnCount="3"
+            android:padding="8dp">
+
+            <!-- Sombrero -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_columnWeight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_margin="4dp">
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:contentDescription="Icono Sombrero"
+                    android:src="@drawable/ic_hat"/>
+                <Button
+                    android:id="@+id/btnBuyHat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="10 pts"
+                    android:textSize="10sp"/>
+            </LinearLayout>
+
+            <!-- Lentes -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_columnWeight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_margin="4dp">
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:contentDescription="Icono Lentes"
+                    android:src="@drawable/ic_glasses"/>
+                <Button
+                    android:id="@+id/btnBuyGlasses"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="15 pts"
+                    android:textSize="10sp"/>
+            </LinearLayout>
+
+            <!-- Moño -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_columnWeight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_margin="4dp">
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:contentDescription="Icono Moño"
+                    android:src="@drawable/ic_bowtie"/>
+                <Button
+                    android:id="@+id/btnBuyBowtie"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="5 pts"
+                    android:textSize="10sp"/>
+            </LinearLayout>
+
+            <!-- Collar -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_columnWeight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_margin="4dp">
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:contentDescription="Icono Collar"
+                    android:src="@drawable/ic_necklace"/>
+                <Button
+                    android:id="@+id/btnBuyNecklace"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="25 pts"
+                    android:textSize="10sp"/>
+            </LinearLayout>
+
+            <!-- Bigote -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_columnWeight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_margin="4dp">
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:contentDescription="Icono Bigote"
+                    android:src="@drawable/ic_mustache"/>
+                <Button
+                    android:id="@+id/btnBuyMustache"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="12 pts"
+                    android:textSize="10sp"/>
+            </LinearLayout>
+
+            <!-- Capa -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_columnWeight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_margin="4dp">
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:contentDescription="Icono Capa"
+                    android:src="@drawable/ic_cape"/>
+                <Button
+                    android:id="@+id/btnBuyCape"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="50 pts"
+                    android:textSize="10sp"/>
+            </LinearLayout>
+
+            <!-- Corona -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:layout_columnWeight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:layout_margin="4dp">
+                <ImageView
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:contentDescription="Icono Corona"
+                    android:src="@drawable/ic_crown"/>
+                <Button
+                    android:id="@+id/btnBuyCrown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="100 pts"
+                    android:textSize="10sp"/>
+            </LinearLayout>
+
+        </androidx.gridlayout.widget.GridLayout>
+    </ScrollView>
+
+</LinearLayout>

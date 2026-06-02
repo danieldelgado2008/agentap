@@ -64,4 +64,10 @@
         android:label="Perfil"
         tools:layout="@layout/fragment_perfil" />
 
+    <fragment
+        android:id="@+id/mascotaFragment"
+        android:name="com.example.agenta.fragments.MascotaFragment"
+        android:label="Mascota"
+        tools:layout="@layout/fragment_mascota" />
+
 </navigation>

@@ -28,6 +28,10 @@ class ConfiguracionFragment : Fragment() {
         val colorLightGreen = view.findViewById<View>(R.id.colorLightGreen)
 
         btnLogout.setOnClickListener {
+            // Limpiar los accesorios y puntos de la mascota al cerrar sesión
+            val statsPrefs = requireActivity().getSharedPreferences("UserStats", Context.MODE_PRIVATE)
+            statsPrefs.edit().clear().apply()
+
             val intent = Intent(requireContext(), LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
