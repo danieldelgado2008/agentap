@@ -16,7 +16,8 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-val prefs = getSharedPreferences("Settings", Context.MODE_PRIVATE)
+
+        val prefs = getSharedPreferences("Settings", Context.MODE_PRIVATE)
         val colorHex = prefs.getString("backgroundColor", "#FFFFFF")
         findViewById<LinearLayout>(R.id.layoutLogin)?.setBackgroundColor(Color.parseColor(colorHex))
 

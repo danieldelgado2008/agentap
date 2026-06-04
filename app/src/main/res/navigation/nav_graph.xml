@@ -3,71 +3,71 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/FirstFragment">
+    app:startDestination="@id/FragmentoTareas">
 
     <fragment
-        android:id="@+id/FirstFragment"
-        android:name="com.example.agenta.fragments.FirstFragment"
+        android:id="@+id/FragmentoTareas"
+        android:name="com.example.agenta.fragments.FragmentoTareas"
         android:label="Agenta - Tareas"
-        tools:layout="@layout/fragment_home">
+        tools:layout="@layout/fragmento_tareas">
 
         <action
-            android:id="@+id/action_FirstFragment_to_SecondFragment"
-            app:destination="@id/SecondFragment" />
+            android:id="@+id/action_FragmentoTareas_to_FragmentoDetalleTarea"
+            app:destination="@id/FragmentoDetalleTarea" />
 
         <action
-            android:id="@+id/action_FirstFragment_to_nuevaTareaFragment"
-            app:destination="@id/nuevaTareaFragment" />
+            android:id="@+id/action_FragmentoTareas_to_FragmentoNuevaTarea"
+            app:destination="@id/FragmentoNuevaTarea" />
 
         <action
-            android:id="@+id/action_global_configuracionFragment"
-            app:destination="@id/configuracionFragment" />
+            android:id="@+id/action_global_FragmentoConfiguracion"
+            app:destination="@id/FragmentoConfiguracion" />
     </fragment>
 
     <fragment
-        android:id="@+id/SecondFragment"
-        android:name="com.example.agenta.fragments.SecondFragment"
+        android:id="@+id/FragmentoDetalleTarea"
+        android:name="com.example.agenta.fragments.FragmentoDetalleTarea"
         android:label="Detalles"
-        tools:layout="@layout/fragment_second">
+        tools:layout="@layout/fragmento_detalle_tarea">
 
         <action
-            android:id="@+id/action_SecondFragment_to_FirstFragment"
-            app:destination="@id/FirstFragment" />
+            android:id="@+id/action_FragmentoDetalleTarea_to_FragmentoTareas"
+            app:destination="@id/FragmentoTareas" />
     </fragment>
 
     <fragment
-        android:id="@+id/registerFragment"
-        android:name="com.example.agenta.fragments.RegisterFragment"
+        android:id="@+id/FragmentoRegistro"
+        android:name="com.example.agenta.fragments.FragmentoRegistro"
         android:label="Registro"
-        tools:layout="@layout/fragment_register">
+        tools:layout="@layout/fragmento_registro">
 
         <action
-            android:id="@+id/action_registerFragment_to_firstFragment"
-            app:destination="@id/FirstFragment" />
+            android:id="@+id/action_FragmentoRegistro_to_FragmentoTareas"
+            app:destination="@id/FragmentoTareas" />
     </fragment>
 
     <fragment
-        android:id="@+id/nuevaTareaFragment"
-        android:name="com.example.agenta.fragments.NuevaTareaFragment"
+        android:id="@+id/FragmentoNuevaTarea"
+        android:name="com.example.agenta.fragments.FragmentoNuevaTarea"
         android:label="Nueva Tarea"
-        tools:layout="@layout/fragment_second"> </fragment>
+        tools:layout="@layout/fragmento_detalle_tarea"> </fragment>
 
     <fragment
-        android:id="@+id/configuracionFragment"
-        android:name="com.example.agenta.fragments.ConfiguracionFragment"
+        android:id="@+id/FragmentoConfiguracion"
+        android:name="com.example.agenta.fragments.FragmentoConfiguracion"
         android:label="Configuración"
-        tools:layout="@layout/fragment_configuracion" />
+        tools:layout="@layout/fragmento_configuracion" />
 
     <fragment
-        android:id="@+id/perfilFragment"
-        android:name="com.example.agenta.fragments.PerfilFragment"
+        android:id="@+id/FragmentoPerfil"
+        android:name="com.example.agenta.fragments.FragmentoPerfil"
         android:label="Perfil"
-        tools:layout="@layout/fragment_perfil" />
+        tools:layout="@layout/fragmento_perfil" />
 
     <fragment
-        android:id="@+id/mascotaFragment"
-        android:name="com.example.agenta.fragments.MascotaFragment"
+        android:id="@+id/FragmentoMascota"
+        android:name="com.example.agenta.fragments.FragmentoMascota"
         android:label="Mascota"
-        tools:layout="@layout/fragment_mascota" />
+        tools:layout="@layout/fragmento_mascota" />
 
 </navigation>

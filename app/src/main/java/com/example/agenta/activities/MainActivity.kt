@@ -1,12 +1,10 @@
 package com.example.agenta.activities
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -18,7 +16,6 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.agenta.R
 import com.example.agenta.databinding.ActivityMainBinding
-import com.google.android.material.snackbar.Snackbar
 
 class MainActivity : AppCompatActivity() {
 
@@ -52,16 +49,15 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
 
         if (intent.getBooleanExtra("goToRegister", false)) {
-            navController.navigate(R.id.registerFragment)
+            navController.navigate(R.id.FragmentoRegistro)
         }
 
-        binding.fab.setImageResource(R.drawable.ic_pet)
+        binding.fab.setImageResource(R.drawable.ic_dinosaurio_boton)
         binding.fab.setOnClickListener {
-            navController.navigate(R.id.mascotaFragment)
+            navController.navigate(R.id.FragmentoMascota)
         }
     }
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-
         menuInflater.inflate(R.menu.main_menu, menu)
         return true
     }
@@ -70,11 +66,11 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return when (item.itemId) {
             R.id.menu_configuracion -> {
-                navController.navigate(R.id.configuracionFragment)
+                navController.navigate(R.id.FragmentoConfiguracion)
                 true
             }
             R.id.menu_perfil -> {
-                navController.navigate(R.id.perfilFragment)
+                navController.navigate(R.id.FragmentoPerfil)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -83,7 +79,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
-        if (navController.currentDestination?.id == R.id.registerFragment) {
+        if (navController.currentDestination?.id == R.id.FragmentoRegistro) {
             finish()
             return true
         }
