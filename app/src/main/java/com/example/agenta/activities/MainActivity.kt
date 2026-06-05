@@ -1,12 +1,19 @@
 package com.example.agenta.activities
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.content.Context
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.os.Build
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.findNavController
@@ -55,6 +62,38 @@ class MainActivity : AppCompatActivity() {
         binding.fab.setImageResource(R.drawable.ic_dinosaurio_boton)
         binding.fab.setOnClickListener {
             navController.navigate(R.id.FragmentoMascota)
+        }
+
+        crearCanalNotificaciones()
+        solicitarPermisoNotificaciones()
+    }
+
+    private fun crearCanalNotificaciones() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "Recordatorios de Tareas"
+            val descriptionText = "Notificaciones para entregas de tareas"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel("CANAL_TAREAS", name, importance).apply {
+                description = descriptionText
+            }
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun solicitarPermisoNotificaciones() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) !=
+                PackageManager.PERMISSION_GRANTED
+            ) {
+                val launcher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+                    if (!isGranted) {
+                        Toast.makeText(this, "Las notificaciones están desactivadas", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                launcher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+            }
         }
     }
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
