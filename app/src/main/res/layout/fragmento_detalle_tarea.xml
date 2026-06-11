@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/tvNuevaTareaTitulo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nueva tarea"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="24dp"
+        android:textAlignment="center"
+        android:textColor="#6200EE" />
+
+    <EditText
+        android:id="@+id/etMateria"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Materia"
+        android:inputType="text"
+        android:layout_marginBottom="16dp"/>
+
+    <EditText
+        android:id="@+id/etNombreTarea"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Tarea"
+        android:inputType="text"
+        android:layout_marginBottom="16dp"/>
+
+    <EditText
+        android:id="@+id/etFechaEntrega"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Fecha entrega (Ej. 25/05/2026)"
+        android:inputType="date"
+        android:layout_marginBottom="16dp"/>
+
+    <EditText
+        android:id="@+id/etEspecificaciones"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Especificaciones"
+        android:inputType="textMultiLine"
+        android:lines="3"
+        android:layout_marginBottom="32dp"/>
+
+    <Button
+        android:id="@+id/btnGuardarTarea"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="GUARDAR"
+        android:backgroundTint="#6200EE"
+        android:textColor="@android:color/white"/>
+</LinearLayout>

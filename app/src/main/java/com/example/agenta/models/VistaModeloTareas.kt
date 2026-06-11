@@ -1,0 +1,46 @@
+package com.example.agenta.models
+
+import android.app.Application
+import android.content.Context
+import android.os.Build
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.example.agenta.notifications.GestorNotificaciones
+
+class VistaModeloTareas(application: Application) : AndroidViewModel(application) {
+
+    private val _listaTareas = MutableLiveData<MutableList<Tarea>>()
+    val listaTareas: LiveData<MutableList<Tarea>> get() = _listaTareas
+
+    var tareaSeleccionada: Tarea? = null
+
+    init {
+       _listaTareas.value = mutableListOf<Tarea>().apply { addAll(Repository.listaMemoria) }
+    }
+
+    fun agregarTarea(nuevaTarea: Tarea) {
+        val nuevoId = if (Repository.listaMemoria.isEmpty()) 1 else Repository.listaMemoria.maxOf { it.id } + 1
+        val tareaConId = nuevaTarea.copy(id = nuevoId)
+        Repository.listaMemoria.add(tareaConId)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            GestorNotificaciones.programarNotificaciones(getApplication(), tareaConId)
+        }
+
+        _listaTareas.value = mutableListOf<Tarea>().apply { addAll(Repository.listaMemoria) }
+    }
+
+    fun marcarComoTerminada(tarea: Tarea) {
+        val index = Repository.listaMemoria.indexOfFirst { it.id == tarea.id }
+        if (index != -1 && !Repository.listaMemoria[index].estaHecha) {
+            Repository.listaMemoria[index] = Repository.listaMemoria[index].copy(estaHecha = true)
+            
+            val prefs = getApplication<Application>().getSharedPreferences("UserStats", Context.MODE_PRIVATE)
+            val currentPoints = prefs.getInt("userPoints", 0)
+            prefs.edit().putInt("userPoints", currentPoints + 5).apply()
+        }
+
+        _listaTareas.value = mutableListOf<Tarea>().apply { addAll(Repository.listaMemoria) }
+    }
+}
