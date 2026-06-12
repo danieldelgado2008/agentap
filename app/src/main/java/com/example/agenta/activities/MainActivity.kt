@@ -26,12 +26,17 @@ import com.example.agenta.R
 import com.example.agenta.databinding.ActivityMainBinding
 import com.example.agenta.models.VistaModeloTareas
 
+/**
+ * Actividad principal que sirve como contenedor para la navegación de la aplicación.
+ * Maneja la barra de herramientas (Toolbar), el botón flotante (FAB) y los permisos de notificaciones.
+ */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: VistaModeloTareas
 
+    // Lanzador para solicitar permisos de notificaciones de forma reactiva
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -42,18 +47,24 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Habilita el diseño de borde a borde (edge-to-edge)
         enableEdgeToEdge()
 
+        // Inflar el diseño usando View Binding
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Inicializar el ViewModel compartido
         viewModel = ViewModelProvider(this)[VistaModeloTareas::class.java]
+        
+        // Recuperar el ID del usuario actual de las preferencias para cargar sus tareas
         val userPrefs = getSharedPreferences("UserSettings", Context.MODE_PRIVATE)
         val userId = userPrefs.getInt("currentUserId", -1)
         if (userId != -1) {
             viewModel.setUsuarioId(userId)
         }
 
+        // Aplicar el color de fondo personalizado guardado en la configuración
         val prefs = getSharedPreferences("Settings", MODE_PRIVATE)
         val colorHex = prefs.getString("backgroundColor", "#FFFFFF") ?: "#FFFFFF"
         try {
@@ -62,34 +73,44 @@ class MainActivity : AppCompatActivity() {
             binding.main.setBackgroundColor(Color.WHITE)
         }
 
+        // Ajustar el padding para que el contenido no quede oculto bajo las barras del sistema
         ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
+        // Configurar la Toolbar como ActionBar
         setSupportActionBar(binding.toolbar)
 
+        // Configurar el controlador de navegación (NavController) con el FragmentContainerView
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
         val navController = navHostFragment.navController
 
+        // Vincular la ActionBar con el NavController para el título y botón de retroceso
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
+        // Navegar automáticamente al registro si se indica en el Intent
         if (intent.getBooleanExtra("goToRegister", false)) {
             navController.navigate(R.id.FragmentoRegistro)
         }
 
+        // Configurar el Botón Flotante para ir a la sección de la mascota
         binding.fab.setImageResource(R.drawable.ic_dinosaurio_boton)
         binding.fab.setOnClickListener {
             navController.navigate(R.id.FragmentoMascota)
         }
 
+        // Preparar el sistema de notificaciones
         crearCanalNotificaciones()
         solicitarPermisoNotificaciones()
     }
 
+    /**
+     * Crea el canal de notificaciones necesario para Android 8.0 o superior.
+     */
     private fun crearCanalNotificaciones() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "Recordatorios de Tareas"
@@ -104,6 +125,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Solicita permisos de notificación si el dispositivo corre Android 13 o superior.
+     */
     private fun solicitarPermisoNotificaciones() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) !=
@@ -114,11 +138,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Infla el menú de opciones en la barra superior.
+     */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         return true
     }
 
+    /**
+     * Maneja los clics en los elementos del menú (Configuración, Perfil).
+     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return when (item.itemId) {
@@ -134,6 +164,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Maneja la acción de retroceso en la navegación superior.
+     */
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         if (navController.currentDestination?.id == R.id.FragmentoRegistro) {

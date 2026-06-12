@@ -14,8 +14,8 @@ import com.example.agenta.R
 import com.example.agenta.activities.LoginActivity
 
 /**
- * Fragmento para gestionar la configuración de la aplicación.
- * Permite cambiar el color de fondo y cerrar la sesión.
+ * Fragmento para gestionar la configuración personalizada del usuario.
+ * Permite cambiar el color de fondo de la aplicación y realizar el cierre de sesión.
  */
 class FragmentoConfiguracion : Fragment() {
 
@@ -25,18 +25,22 @@ class FragmentoConfiguracion : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragmento_configuracion, container, false)
 
-        // Obtener preferencias compartidas para guardar la configuración
+        // Obtener preferencias compartidas para guardar la configuración visual
         val prefs = requireActivity().getSharedPreferences("Settings", Context.MODE_PRIVATE)
 
-        // Configurar los botones de selección de color
+        // Configurar los botones de selección de color para el fondo
         view.findViewById<View>(R.id.colorWhite).setOnClickListener { setBgColor("#FFFFFF", prefs) }
         view.findViewById<View>(R.id.colorLightBlue).setOnClickListener { setBgColor("#E3F2FD", prefs) }
         view.findViewById<View>(R.id.colorLightPink).setOnClickListener { setBgColor("#FCE4EC", prefs) }
         view.findViewById<View>(R.id.colorLightGreen).setOnClickListener { setBgColor("#E8F5E9", prefs) }
 
-        // Botón de cerrar sesión
+        // Configuración del botón de cerrar sesión
         view.findViewById<Button>(R.id.btnLogout).setOnClickListener {
-            // Regresar a LoginActivity y limpiar la pila de actividades
+            // 1. Limpiar los datos del usuario en SharedPreferences para invalidar la sesión
+            val userPrefs = requireActivity().getSharedPreferences("UserSettings", Context.MODE_PRIVATE)
+            userPrefs.edit { clear() }
+
+            // 2. Regresar a LoginActivity y limpiar la pila de actividades para evitar volver atrás
             val intent = Intent(requireContext(), LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
@@ -46,7 +50,7 @@ class FragmentoConfiguracion : Fragment() {
     }
 
     /**
-     * Guarda el color seleccionado en SharedPreferences.
+     * Guarda el color seleccionado en SharedPreferences para persistencia visual.
      */
     private fun setBgColor(color: String, prefs: android.content.SharedPreferences) {
         prefs.edit { putString("backgroundColor", color) }

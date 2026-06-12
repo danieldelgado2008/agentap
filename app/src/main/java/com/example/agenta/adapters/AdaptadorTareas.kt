@@ -9,14 +9,22 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.agenta.R
 import com.example.agenta.models.Tarea
 
+/**
+ * Adaptador para el RecyclerView que muestra la lista de tareas.
+ * Se encarga de vincular los datos de cada objeto [Tarea] con las vistas correspondientes.
+ */
 class AdaptadorTareas(
     private var listaTareas: List<Tarea>,
-    private val onVerClick: (Tarea) -> Unit,
-    private val onHechaClick: (Tarea) -> Unit
+    private val onVerClick: (Tarea) -> Unit, // Callback para ver detalles
+    private val onHechaClick: (Tarea) -> Unit // Callback para marcar como hecha
 ) : RecyclerView.Adapter<AdaptadorTareas.TareaViewHolder>() {
 
+    // Almacena el filtro activo para decidir qué elementos visuales mostrar/ocultar
     private var filtroActual: String = "PROXIMAS"
 
+    /**
+     * Clase interna que contiene las referencias a las vistas de un solo elemento de la lista.
+     */
     class TareaViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvMateria: TextView = view.findViewById(R.id.tvMateria)
         val tvTarea: TextView = view.findViewById(R.id.tvTarea)
@@ -25,11 +33,17 @@ class AdaptadorTareas(
         val btnVerDetalle: Button = view.findViewById(R.id.btnVerDetalle)
     }
 
+    /**
+     * Crea una nueva vista (inflada desde item_tarea.xml) cuando el RecyclerView la necesita.
+     */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TareaViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_tarea, parent, false)
         return TareaViewHolder(view)
     }
 
+    /**
+     * Vincula los datos de la tarea en la posición [position] con las vistas del [holder].
+     */
     override fun onBindViewHolder(holder: TareaViewHolder, position: Int) {
         val tarea = listaTareas[position]
         
@@ -38,6 +52,7 @@ class AdaptadorTareas(
         holder.tvFecha.text = tarea.fechaEntrega
         holder.tvDescripcion.text = tarea.descripcion
 
+        // Configurar acción del botón según el texto que tenga asignado
         holder.btnVerDetalle.setOnClickListener {
             if (holder.btnVerDetalle.text == "VER") {
                 onVerClick(tarea)
@@ -46,18 +61,9 @@ class AdaptadorTareas(
             }
         }
 
+        // Lógica visual dinámica: oculta o muestra detalles según el filtro seleccionado
         when (filtroActual) {
-            "PROXIMAS" -> {
-                holder.tvDescripcion.visibility = View.GONE
-                holder.btnVerDetalle.visibility = View.VISIBLE
-                holder.btnVerDetalle.text = "VER"
-            }
-            "HECHAS" -> {
-                holder.tvDescripcion.visibility = View.GONE
-                holder.btnVerDetalle.visibility = View.VISIBLE
-                holder.btnVerDetalle.text = "VER"
-            }
-            "PASADAS" -> {
+            "PROXIMAS", "HECHAS", "PASADAS" -> {
                 holder.tvDescripcion.visibility = View.GONE
                 holder.btnVerDetalle.visibility = View.VISIBLE
                 holder.btnVerDetalle.text = "VER"
@@ -72,6 +78,9 @@ class AdaptadorTareas(
 
     override fun getItemCount() = listaTareas.size
 
+    /**
+     * Actualiza la lista de datos del adaptador y notifica al RecyclerView para refrescarse.
+     */
     fun updateList(nuevaLista: List<Tarea>, filtro: String) {
         this.listaTareas = nuevaLista
         this.filtroActual = filtro
