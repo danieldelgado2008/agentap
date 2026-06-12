@@ -9,6 +9,10 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.example.agenta.R
 
+/**
+ * Fragmento que muestra el perfil del usuario.
+ * Recupera la información guardada durante el registro.
+ */
 class FragmentoPerfil : Fragment() {
 
     override fun onCreateView(
@@ -21,14 +25,11 @@ class FragmentoPerfil : Fragment() {
         val tvEmail = view.findViewById<TextView>(R.id.tvPerfilEmail)
         val tvTelefono = view.findViewById<TextView>(R.id.tvPerfilTelefono)
 
+        // Cargar datos del usuario desde SharedPreferences
         val prefs = requireActivity().getSharedPreferences("UserSettings", Context.MODE_PRIVATE)
-        val nombre = prefs.getString("userName", "No disponible")
-        val email = prefs.getString("userEmail", "No disponible")
-        val telefono = prefs.getString("userPhone", "No disponible")
-
-        tvNombre.text = nombre
-        tvEmail.text = email
-        tvTelefono.text = telefono
+        tvNombre.text = prefs.getString("userName", "Usuario")
+        tvEmail.text = prefs.getString("userEmail", "Sin email")
+        tvTelefono.text = prefs.getString("userPhone", "Sin teléfono")
 
         return view
     }

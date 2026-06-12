@@ -21,6 +21,10 @@ import com.example.agenta.models.VistaModeloTareas
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+/**
+ * Fragmento principal que muestra la lista de tareas del usuario.
+ * Incluye funcionalidades de filtrado, búsqueda y navegación para agregar o ver tareas.
+ */
 class FragmentoTareas : Fragment() {
 
     private var recyclerView: RecyclerView? = null
@@ -44,13 +48,16 @@ class FragmentoTareas : Fragment() {
         recyclerView = view.findViewById(R.id.rvTareas)
         recyclerView?.layoutManager = LinearLayoutManager(context)
 
+        // Configurar el adaptador con los callbacks de clic
         adapter = AdaptadorTareas(
             listOf(),
             onVerClick = { tarea ->
+                // Guardar la tarea seleccionada en el ViewModel para que el fragmento detalle la lea
                 viewModel.tareaSeleccionada = tarea
                 findNavController().navigate(R.id.action_FragmentoTareas_to_FragmentoDetalleTarea)
             },
             onHechaClick = { tareaMarcada ->
+                // Acción rápida para marcar como terminada
                 viewModel.marcarComoTerminada(tareaMarcada)
                 Toast.makeText(context, "¡Tarea completada!", Toast.LENGTH_SHORT).show()
                 recargarListaSegunFiltro()
@@ -58,25 +65,26 @@ class FragmentoTareas : Fragment() {
         )
         recyclerView?.adapter = adapter
 
+        // Observar cambios en la base de datos para actualizar la UI automáticamente
         viewModel.listaTareas.observe(viewLifecycleOwner) { _ ->
             recargarListaSegunFiltro()
         }
 
+        // Configurar botón para agregar nueva tarea
         val btnAgregar = view.findViewById<ImageButton>(R.id.btnAgregar)
         btnAgregar?.setOnClickListener {
-            viewModel.tareaSeleccionada = null
+            viewModel.tareaSeleccionada = null // Limpiar selección previa
             findNavController().navigate(R.id.action_FragmentoTareas_to_FragmentoNuevaTarea)
         }
 
+        // Configurar botones de filtrado y barra de búsqueda
         val btnTodas = view.findViewById<Button>(R.id.btnTodasTareas)
         val btnPasadas = view.findViewById<Button>(R.id.btnTareasPasadas)
         val btnTerminadas = view.findViewById<Button>(R.id.btnTareasTerminadas)
         val svBuscador = view.findViewById<SearchView>(R.id.svBuscador)
 
         svBuscador?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return false
-            }
+            override fun onQueryTextSubmit(query: String?): Boolean = false
 
             override fun onQueryTextChange(newText: String?): Boolean {
                 currentQuery = newText.orEmpty()
@@ -98,15 +106,12 @@ class FragmentoTareas : Fragment() {
             recargarListaSegunFiltro()
         }
 
-        findNavController().currentBackStackEntry?.savedStateHandle?.getLiveData<Boolean>("refresh")?.observe(viewLifecycleOwner) { refresh ->
-            if (refresh == true) {
-                recargarListaSegunFiltro()
-            }
-        }
-
         return view
     }
 
+    /**
+     * Aplica el filtrado y ordenamiento de la lista según el estado actual.
+     */
     @RequiresApi(Build.VERSION_CODES.O)
     private fun recargarListaSegunFiltro() {
         when (filtroActivo) {
@@ -120,7 +125,7 @@ class FragmentoTareas : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun mostrarProximas() {
         val hoyActual = LocalDate.now()
-        val tareas = viewModel.listaTareas.value ?: mutableListOf()
+        val tareas = viewModel.listaTareas.value ?: listOf()
         val filtradas = tareas
             .filter {
                 val fechaParsed = parsearFechaSegura(it.fechaEntrega)
@@ -138,7 +143,7 @@ class FragmentoTareas : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun mostrarPasadas() {
         val hoyActual = LocalDate.now()
-        val tareas = viewModel.listaTareas.value ?: mutableListOf()
+        val tareas = viewModel.listaTareas.value ?: listOf()
         val filtradas = tareas
             .filter {
                 val fechaParsed = parsearFechaSegura(it.fechaEntrega)
@@ -156,15 +161,15 @@ class FragmentoTareas : Fragment() {
     @RequiresApi(Build.VERSION_CODES.O)
     private fun mostrarTodas() {
         val hoyActual = LocalDate.now()
-        val tareas = viewModel.listaTareas.value ?: mutableListOf()
+        val tareas = viewModel.listaTareas.value ?: listOf()
         val filtradas = tareas
             .filter {
-                val fechaParsed = parsearFechaSegura(it.fechaEntrega)
                 val matchesQuery = it.titulo.contains(currentQuery, true) ||
                         it.materia.contains(currentQuery, true) ||
                         it.descripcion.contains(currentQuery, true)
 
-                !it.estaHecha && (fechaParsed == null || !fechaParsed.isBefore(hoyActual)) && matchesQuery
+                // En "Todas" mostramos las pendientes independientemente de la fecha
+                !it.estaHecha && matchesQuery
             }
             .sortedBy { parsearFechaSegura(it.fechaEntrega) }
 
@@ -173,7 +178,7 @@ class FragmentoTareas : Fragment() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun mostrarHechas() {
-        val tareas = viewModel.listaTareas.value ?: mutableListOf()
+        val tareas = viewModel.listaTareas.value ?: listOf()
         val filtradas = tareas
             .filter {
                 val matchesQuery = it.titulo.contains(currentQuery, true) ||
@@ -187,6 +192,9 @@ class FragmentoTareas : Fragment() {
         adapter?.updateList(filtradas, "HECHAS")
     }
 
+    /**
+     * Intenta convertir un String de fecha a un objeto LocalDate de forma robusta.
+     */
     @RequiresApi(Build.VERSION_CODES.O)
     private fun parsearFechaSegura(fechaStr: String): LocalDate? {
         return try {

@@ -7,25 +7,43 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.agenta.R
 
+/**
+ * Worker que se ejecuta en segundo plano para mostrar la notificación real al usuario.
+ */
 class NotificacionTareaWorker(context: Context, workerParams: WorkerParameters) :
     Worker(context, workerParams) {
 
     override fun doWork(): Result {
-        val titulo = inputData.getString("TITULO_TAREA") ?: "Tarea pendiente"
-        val mensaje = inputData.getString("MENSAJE_NOTIFICACION") ?: "Tienes una entrega pronto"
-        val notificationId = inputData.getInt("ID_TAREA", 1)
+        // Recuperar los datos enviados por el GestorNotificaciones
+        val tareaId = inputData.getInt("tareaId", 0)
+        val titulo = inputData.getString("titulo") ?: "Recordatorio de Tarea"
+        val mensaje = inputData.getString("mensaje") ?: "Tienes una tarea pendiente"
+
+        // Mostrar la notificación en el sistema
+        mostrarNotificacion(tareaId, titulo, mensaje)
+
+        return Result.success()
+    }
+
+    /**
+     * Construye y muestra la notificación física en el dispositivo.
+     */
+    private fun mostrarNotificacion(id: Int, titulo: String, mensaje: String) {
+        val notificationManager =
+            applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         val builder = NotificationCompat.Builder(applicationContext, "CANAL_TAREAS")
-            .setSmallIcon(R.drawable.ic_logo_app)
+            .setSmallIcon(R.mipmap.ic_launcher) // Icono de la notificación
             .setContentTitle(titulo)
             .setContentText(mensaje)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
+            .setAutoCancel(true) // Se cierra al tocarla
 
-        val notificationManager =
-            applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(notificationId, builder.build())
-
-        return Result.success()
+        // Se requiere permiso de notificaciones para que esto funcione en Android 13+
+        try {
+            notificationManager.notify(id, builder.build())
+        } catch (e: SecurityException) {
+            // Manejar falta de permisos si es necesario
+        }
     }
 }

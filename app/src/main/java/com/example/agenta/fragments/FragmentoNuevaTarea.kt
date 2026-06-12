@@ -14,6 +14,10 @@ import com.example.agenta.R
 import com.example.agenta.models.Tarea
 import com.example.agenta.models.VistaModeloTareas
 
+/**
+ * Fragmento para crear una nueva tarea.
+ * Recopila los datos ingresados por el usuario y los guarda en la base de datos.
+ */
 class FragmentoNuevaTarea : Fragment() {
 
     private lateinit var viewModel: VistaModeloTareas
@@ -37,7 +41,9 @@ class FragmentoNuevaTarea : Fragment() {
             val fecha = etFechaEntrega.text.toString().trim()
             val especificaciones = etEspecificaciones.text.toString().trim()
 
+            // Validar campos obligatorios
             if (materia.isNotEmpty() && nombreTarea.isNotEmpty()) {
+                // Crear objeto Tarea con ID 0 (Room lo generará automáticamente)
                 val nuevaTarea = Tarea(
                     id = 0,
                     materia = materia,
@@ -45,10 +51,11 @@ class FragmentoNuevaTarea : Fragment() {
                     fechaEntrega = if (fecha.isNotEmpty()) fecha else "Sin fecha",
                     descripcion = especificaciones
                 )
+                // Guardar en base de datos mediante el ViewModel
                 viewModel.agregarTarea(nuevaTarea)
 
                 Toast.makeText(context, "Tarea '$nombreTarea' guardada con éxito", Toast.LENGTH_SHORT).show()
-                findNavController().popBackStack()
+                findNavController().popBackStack() // Regresar a la pantalla anterior
             } else {
                 Toast.makeText(context, "Por favor, llena los campos obligatorios (Materia y Tarea)", Toast.LENGTH_SHORT).show()
             }
