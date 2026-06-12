@@ -22,8 +22,9 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 /**
- * Fragmento encargado de mostrar la lista de tareas del usuario.
- * Permite filtrar tareas (Próximas, Pasadas, Todas, Hechas) y buscarlas por texto.
+ * Esta es la pantalla donde ves todas tus tareas en una lista.
+ * Aquí puedes buscar tareas por nombre, filtrarlas para ver las que ya pasaron
+ * o las que ya terminaste, y marcar las que vas completando.
  */
 class FragmentoTareas : Fragment() {
 
@@ -31,12 +32,12 @@ class FragmentoTareas : Fragment() {
     private var adapter: AdaptadorTareas? = null
     private lateinit var viewModel: VistaModeloTareas
 
-    // Estado del filtro de visualización actual
+    // Guarda qué filtro está tocando el usuario (Próximas, Pasadas, etc.)
     private var filtroActivo: String = "PROXIMAS"
-    // Texto de búsqueda actual en el SearchView
+    // Guarda lo que el usuario escribe en el buscador
     private var currentQuery: String = ""
 
-    // Formateador para manejar las fechas de entrega de las tareas
+    // Herramienta para entender las fechas escritas como "día/mes/año"
     @RequiresApi(Build.VERSION_CODES.O)
     private val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
@@ -45,51 +46,52 @@ class FragmentoTareas : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflar el diseño del fragmento
+        // Cargamos el diseño visual de la lista
         val view = inflater.inflate(R.layout.fragmento_tareas, container, false)
-        // Obtener el ViewModel compartido de la actividad
+        // Conectamos con el cerebro de datos compartido
         viewModel = ViewModelProvider(requireActivity())[VistaModeloTareas::class.java]
 
-        // Configuración del RecyclerView
+        // Preparamos el contenedor de la lista (RecyclerView)
         recyclerView = view.findViewById(R.id.rvTareas)
         recyclerView?.layoutManager = LinearLayoutManager(context)
 
-        // Inicializar el adaptador con las funciones de clic
+        // El "Adaptador" es el que dibuja cada tarea en la lista.
+        // Aquí le decimos qué hacer cuando el usuario toca los botones.
         adapter = AdaptadorTareas(
             listOf(),
             onVerClick = { tarea ->
-                // Guardar tarea seleccionada y navegar al detalle
+                // Al tocar una tarea, la guardamos y nos vamos a ver sus detalles
                 viewModel.tareaSeleccionada = tarea
                 findNavController().navigate(R.id.action_FragmentoTareas_to_FragmentoDetalleTarea)
             },
             onHechaClick = { tareaMarcada ->
-                // Marcar tarea como completada en la DB
+                // Al tocar el botón de completar, avisamos al cerebro de datos
                 viewModel.marcarComoTerminada(tareaMarcada)
-                Toast.makeText(context, "¡Tarea completada!", Toast.LENGTH_SHORT).show()
-                recargarListaSegunFiltro() // Refrescar la vista actual
+                Toast.makeText(context, "¡Buen trabajo! Tarea completada", Toast.LENGTH_SHORT).show()
+                recargarListaSegunFiltro() 
             }
         )
         recyclerView?.adapter = adapter
 
-        // Observar cambios en la lista de tareas de la DB
+        // Si las tareas cambian en la base de datos, refrescamos la lista automáticamente
         viewModel.listaTareas.observe(viewLifecycleOwner) { _ ->
             recargarListaSegunFiltro()
         }
 
-        // Botón para agregar una nueva tarea
+        // Botón con el signo "+" para crear una nueva tarea
         val btnAgregar = view.findViewById<ImageButton>(R.id.btnAgregar)
         btnAgregar?.setOnClickListener {
-            viewModel.tareaSeleccionada = null // Limpiar selección previa
+            viewModel.tareaSeleccionada = null // Limpiamos si había alguna seleccionada
             findNavController().navigate(R.id.action_FragmentoTareas_to_FragmentoNuevaTarea)
         }
 
-        // Referencias a los botones de filtrado y el buscador
+        // Buscador y botones de filtro de la parte superior
         val btnTodas = view.findViewById<Button>(R.id.btnTodasTareas)
         val btnPasadas = view.findViewById<Button>(R.id.btnTareasPasadas)
         val btnTerminadas = view.findViewById<Button>(R.id.btnTareasTerminadas)
         val svBuscador = view.findViewById<SearchView>(R.id.svBuscador)
 
-        // Configuración de la lógica de búsqueda en tiempo real
+        // Esto hace que la lista se filtre mientras vas escribiendo en el buscador
         svBuscador?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean = false
 
@@ -100,7 +102,7 @@ class FragmentoTareas : Fragment() {
             }
         })
 
-        // Configuración de los listeners para los botones de filtro
+        // Configuramos qué pasa al tocar cada botón de filtro
         btnPasadas?.setOnClickListener {
             filtroActivo = "PASADAS"
             recargarListaSegunFiltro()
@@ -118,7 +120,7 @@ class FragmentoTareas : Fragment() {
     }
 
     /**
-     * Aplica la lógica de filtrado según el botón seleccionado.
+     * Decide qué tareas mostrar dependiendo de qué botón de filtro esté activado.
      */
     @RequiresApi(Build.VERSION_CODES.O)
     private fun recargarListaSegunFiltro() {
@@ -131,7 +133,7 @@ class FragmentoTareas : Fragment() {
     }
 
     /**
-     * Filtra y muestra solo las tareas pendientes con fecha de hoy o futura.
+     * Muestra solo tareas pendientes que vencen hoy o en el futuro.
      */
     @RequiresApi(Build.VERSION_CODES.O)
     private fun mostrarProximas() {
@@ -144,6 +146,7 @@ class FragmentoTareas : Fragment() {
                         it.materia.contains(currentQuery, true) ||
                         it.descripcion.contains(currentQuery, true)
 
+                // Filtro: No hecha + fecha hoy o futura + que coincida con lo buscado
                 !it.estaHecha && fechaParsed != null && (fechaParsed.isEqual(hoyActual) || fechaParsed.isAfter(hoyActual)) && matchesQuery
             }
             .sortedBy { parsearFechaSegura(it.fechaEntrega) }
@@ -152,7 +155,7 @@ class FragmentoTareas : Fragment() {
     }
 
     /**
-     * Filtra y muestra tareas pendientes cuya fecha de entrega ya pasó.
+     * Muestra tareas que no terminaste y cuya fecha de entrega ya pasó.
      */
     @RequiresApi(Build.VERSION_CODES.O)
     private fun mostrarPasadas() {
@@ -173,7 +176,7 @@ class FragmentoTareas : Fragment() {
     }
 
     /**
-     * Muestra todas las tareas pendientes, sin importar la fecha.
+     * Muestra absolutamente todas las tareas que no se han marcado como terminadas.
      */
     @RequiresApi(Build.VERSION_CODES.O)
     private fun mostrarTodas() {
@@ -193,7 +196,7 @@ class FragmentoTareas : Fragment() {
     }
 
     /**
-     * Muestra las tareas que ya han sido marcadas como completadas.
+     * Muestra únicamente las tareas que ya marcaste como "Hechas".
      */
     @RequiresApi(Build.VERSION_CODES.O)
     private fun mostrarHechas() {
@@ -212,18 +215,19 @@ class FragmentoTareas : Fragment() {
     }
 
     /**
-     * Intenta convertir un String de fecha a LocalDate manejando posibles errores de formato.
+     * Convierte el texto de la fecha en algo que el celular pueda entender y comparar.
      */
     @RequiresApi(Build.VERSION_CODES.O)
     private fun parsearFechaSegura(fechaStr: String): LocalDate? {
         return try {
             if (fechaStr.length == 5 && fechaStr.contains("/")) {
-                LocalDate.parse("$fechaStr/2026", formatter) // Año por defecto para fechas cortas
+                // Si solo puso día/mes, asumimos que es del año 2026
+                LocalDate.parse("$fechaStr/2026", formatter)
             } else {
                 LocalDate.parse(fechaStr, formatter)
             }
         } catch (e: Exception) {
-            null
+            null // Si el formato está mal, devolvemos nulo
         }
     }
 

@@ -6,32 +6,32 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 /**
- * Clase de base de datos de Room que sirve como punto de acceso principal a la persistencia.
- * Define las entidades que se almacenan y la versión del esquema.
+ * Esta clase es el "Almacén Principal" o la Base de Datos de la aplicación.
+ * Imaginalo como un archivo donde guardamos permanentemente las listas de usuarios y tareas.
  */
 @Database(entities = [Usuario::class, Tarea::class], version = 3)
 abstract class AppDatabase : RoomDatabase() {
     
-    // Métodos abstractos para obtener los DAOs (Objetos de Acceso a Datos)
+    // Estos son los "empleados" que saben cómo entrar a buscar usuarios o tareas al almacén
     abstract fun usuarioDao(): UsuarioDao
     abstract fun tareaDao(): TareaDao
 
     companion object {
+        // La instancia única de la base de datos para toda la app
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
         /**
-         * Retorna la instancia única (Singleton) de la base de datos.
-         * Crea la base de datos si aún no existe.
+         * Función para abrir o crear el almacén de datos la primera vez que se usa.
          */
         fun getDatabase(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "agenta_db"
+                    "agenta_db" // Nombre del archivo de la base de datos
                 )
-                // Permite cambios de esquema destructivos (limpia datos al actualizar versión)
+                // Si cambiamos la estructura de la base de datos, borra lo anterior para no dar errores
                 .fallbackToDestructiveMigration()
                 .build()
                 INSTANCE = instance

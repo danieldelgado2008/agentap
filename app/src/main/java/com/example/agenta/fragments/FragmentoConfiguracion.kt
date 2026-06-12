@@ -14,8 +14,8 @@ import com.example.agenta.R
 import com.example.agenta.activities.LoginActivity
 
 /**
- * Fragmento para gestionar la configuración personalizada del usuario.
- * Permite cambiar el color de fondo de la aplicación y realizar el cierre de sesión.
+ * Esta es la pantalla de "Ajustes" o "Configuración".
+ * Aquí el usuario puede personalizar su app (cambiar el color) o salir de su cuenta.
  */
 class FragmentoConfiguracion : Fragment() {
 
@@ -23,25 +23,27 @@ class FragmentoConfiguracion : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // Cargamos el diseño de la configuración
         val view = inflater.inflate(R.layout.fragmento_configuracion, container, false)
 
-        // Obtener preferencias compartidas para guardar la configuración visual
+        // Preparamos el acceso a la memoria de ajustes del celular
         val prefs = requireActivity().getSharedPreferences("Settings", Context.MODE_PRIVATE)
 
-        // Configurar los botones de selección de color para el fondo
+        // Configuramos los botoncitos de colores para que guarden el color al tocarlos
         view.findViewById<View>(R.id.colorWhite).setOnClickListener { setBgColor("#FFFFFF", prefs) }
         view.findViewById<View>(R.id.colorLightBlue).setOnClickListener { setBgColor("#E3F2FD", prefs) }
         view.findViewById<View>(R.id.colorLightPink).setOnClickListener { setBgColor("#FCE4EC", prefs) }
         view.findViewById<View>(R.id.colorLightGreen).setOnClickListener { setBgColor("#E8F5E9", prefs) }
 
-        // Configuración del botón de cerrar sesión
+        // ¿Qué pasa al tocar "Cerrar Sesión"?
         view.findViewById<Button>(R.id.btnLogout).setOnClickListener {
-            // 1. Limpiar los datos del usuario en SharedPreferences para invalidar la sesión
+            // 1. Borramos toda la información del usuario en este celular
             val userPrefs = requireActivity().getSharedPreferences("UserSettings", Context.MODE_PRIVATE)
             userPrefs.edit { clear() }
 
-            // 2. Regresar a LoginActivity y limpiar la pila de actividades para evitar volver atrás
+            // 2. Lo mandamos de regreso a la pantalla de Inicio de Sesión
             val intent = Intent(requireContext(), LoginActivity::class.java)
+            // Esto hace que no pueda darle a "atrás" para volver a entrar
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
         }
@@ -50,10 +52,10 @@ class FragmentoConfiguracion : Fragment() {
     }
 
     /**
-     * Guarda el color seleccionado en SharedPreferences para persistencia visual.
+     * Guarda el color que eligió el usuario para que la app se vea de ese color al abrirla.
      */
     private fun setBgColor(color: String, prefs: android.content.SharedPreferences) {
         prefs.edit { putString("backgroundColor", color) }
-        Toast.makeText(context, "Color guardado. Reinicia para aplicar.", Toast.LENGTH_SHORT).show()
+        Toast.makeText(context, "Color guardado. Reinicia la app para ver el cambio.", Toast.LENGTH_SHORT).show()
     }
 }

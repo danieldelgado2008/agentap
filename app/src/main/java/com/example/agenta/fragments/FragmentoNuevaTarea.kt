@@ -15,8 +15,8 @@ import com.example.agenta.models.Tarea
 import com.example.agenta.models.VistaModeloTareas
 
 /**
- * Fragmento para la creación de una nueva tarea.
- * Permite ingresar materia, título, fecha y descripción.
+ * Esta pantalla sirve para "Anotar una nueva tarea". 
+ * Es el formulario donde escribes qué tienes que hacer y para cuándo.
  */
 class FragmentoNuevaTarea : Fragment() {
 
@@ -26,29 +26,30 @@ class FragmentoNuevaTarea : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflar el diseño (reutiliza fragmento_detalle_tarea para edición/creación)
+        // Cargamos el diseño de la pantalla de detalles (que sirve para crear y para ver)
         val view = inflater.inflate(R.layout.fragmento_detalle_tarea, container, false)
         viewModel = ViewModelProvider(requireActivity())[VistaModeloTareas::class.java]
 
+        // Buscamos los espacios donde el usuario va a escribir
         val etMateria = view.findViewById<EditText>(R.id.etMateria)
         val etNombreTarea = view.findViewById<EditText>(R.id.etNombreTarea)
         val etFechaEntrega = view.findViewById<EditText>(R.id.etFechaEntrega)
         val etEspecificaciones = view.findViewById<EditText>(R.id.etEspecificaciones)
         val btnGuardar = view.findViewById<Button>(R.id.btnGuardarTarea)
 
-        // Lógica para guardar la tarea
+        // ¿Qué pasa cuando el usuario toca "Guardar"?
         btnGuardar.setOnClickListener {
             val materia = etMateria.text.toString().trim()
             val nombreTarea = etNombreTarea.text.toString().trim()
             val fecha = etFechaEntrega.text.toString().trim()
             val especificaciones = etEspecificaciones.text.toString().trim()
 
-            // Obtener el ID del usuario actualmente logueado desde el ViewModel
+            // Necesitamos saber a qué usuario le pertenece esta tarea
             val userId = viewModel.getUsuarioId()
 
-            // Validar que los campos críticos no estén vacíos
+            // Validamos: obligatorio poner materia y nombre de la tarea
             if (materia.isNotEmpty() && nombreTarea.isNotEmpty() && userId != null) {
-                // Crear el objeto Tarea vinculado al usuario actual
+                // Creamos la "ficha" de la tarea con todo lo que escribió el usuario
                 val nuevaTarea = Tarea(
                     usuarioId = userId,
                     materia = materia,
@@ -57,13 +58,15 @@ class FragmentoNuevaTarea : Fragment() {
                     descripcion = especificaciones
                 )
                 
-                // Persistir la tarea en la base de datos
+                // Le mandamos la tarea al cerebro para que la guarde en la base de datos
                 viewModel.agregarTarea(nuevaTarea)
 
-                Toast.makeText(context, "Tarea '$nombreTarea' guardada con éxito", Toast.LENGTH_SHORT).show()
-                findNavController().popBackStack() // Regresar a la lista de tareas
+                Toast.makeText(context, "Tarea guardada con éxito", Toast.LENGTH_SHORT).show()
+                
+                // Volvemos automáticamente a la lista de tareas
+                findNavController().popBackStack() 
             } else {
-                Toast.makeText(context, "Error al guardar tarea: asegúrate de llenar materia y nombre", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Por favor, escribe al menos la materia y el nombre", Toast.LENGTH_SHORT).show()
             }
         }
 

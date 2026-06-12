@@ -10,8 +10,8 @@ import androidx.fragment.app.Fragment
 import com.example.agenta.R
 
 /**
- * Fragmento que muestra la información del perfil del usuario actual.
- * Recupera el nombre y teléfono desde las preferencias compartidas.
+ * Esta pantalla es el "Perfil" del usuario. 
+ * Solo sirve para mostrar el nombre y el teléfono de la persona que está usando la app.
  */
 class FragmentoPerfil : Fragment() {
 
@@ -19,18 +19,19 @@ class FragmentoPerfil : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflar el diseño del perfil
+        // Cargamos el diseño visual del perfil
         val view = inflater.inflate(R.layout.fragmento_perfil, container, false)
 
+        // Buscamos los lugares donde vamos a poner el nombre y el teléfono
         val tvNombre = view.findViewById<TextView>(R.id.tvPerfilNombre)
         val tvTelefono = view.findViewById<TextView>(R.id.tvPerfilTelefono)
 
-        // Cargar los datos guardados en las preferencias del usuario
+        // Sacamos la información que guardamos en la memoria del celular al registrarse
         val prefs = requireActivity().getSharedPreferences("UserSettings", Context.MODE_PRIVATE)
         val nombre = prefs.getString("userName", "No disponible")
         val telefono = prefs.getString("userPhone", "No disponible")
 
-        // Mostrar la información en la pantalla
+        // Los ponemos en los textos de la pantalla
         tvNombre.text = nombre
         tvTelefono.text = telefono
 

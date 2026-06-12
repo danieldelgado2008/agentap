@@ -4,49 +4,47 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 
 /**
- * Interfaz para el acceso a datos de los Usuarios.
+ * Estas interfaces son las "Órdenes de Trabajo" para la base de datos.
+ * Definen exactamente qué podemos preguntarle o pedirle que guarde.
  */
+
 @Dao
 interface UsuarioDao {
     /**
-     * Busca un usuario por nombre y contraseña para validar el inicio de sesión.
+     * Busca a un usuario comparando su nombre y clave. Se usa al iniciar sesión.
      */
     @Query("SELECT * FROM usuarios WHERE nombre = :nombre AND contrasena = :contrasena LIMIT 1")
     suspend fun login(nombre: String, contrasena: String): Usuario?
 
     /**
-     * Registra un nuevo usuario y devuelve su ID generado automáticamente.
+     * Guarda a una persona nueva en la base de datos.
      */
     @Insert
     suspend fun registrar(usuario: Usuario): Long
 }
 
-/**
- * Interfaz para el acceso a datos de las Tareas.
- */
 @Dao
 interface TareaDao {
     /**
-     * Obtiene todas las tareas pertenecientes a un usuario específico.
-     * Retorna LiveData para observar cambios en tiempo real.
+     * Busca y nos da todas las tareas que le pertenecen a un usuario específico.
      */
     @Query("SELECT * FROM tareas WHERE usuarioId = :uId")
     fun getTareasPorUsuario(uId: Int): LiveData<List<Tarea>>
 
     /**
-     * Inserta una nueva tarea en la base de datos.
+     * Guarda una tarea nueva en la lista.
      */
     @Insert
     suspend fun insertar(tarea: Tarea): Long
 
     /**
-     * Actualiza los datos de una tarea (ej. para marcarla como hecha).
+     * Cambia la información de una tarea (como marcarla como terminada).
      */
     @Update
     suspend fun actualizar(tarea: Tarea)
 
     /**
-     * Elimina una tarea permanentemente de la base de datos.
+     * Borra una tarea de la lista para siempre.
      */
     @Delete
     suspend fun eliminar(tarea: Tarea)

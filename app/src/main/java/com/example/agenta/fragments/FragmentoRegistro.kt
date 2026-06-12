@@ -20,7 +20,8 @@ import com.example.agenta.models.VistaModeloTareas
 import kotlinx.coroutines.launch
 
 /**
- * Fragmento encargado del registro de nuevos usuarios en la aplicación.
+ * Esta pantalla sirve para que los nuevos usuarios creen su cuenta.
+ * Pide nombre, teléfono y contraseña, y los guarda para siempre en el celular.
  */
 class FragmentoRegistro : Fragment() {
 
@@ -28,10 +29,11 @@ class FragmentoRegistro : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Obtener el ViewModel compartido
+        // Conectamos con el cerebro de datos
         viewModel = ViewModelProvider(requireActivity())[VistaModeloTareas::class.java]
 
-        // Manejar el botón de retroceso físico para cerrar la actividad si se está registrando
+        // Si el usuario presiona el botón físico de "atrás" en el celular, 
+        // cerramos la app para que no regrese a la pantalla de login vacía.
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 requireActivity().finish()
@@ -43,7 +45,7 @@ class FragmentoRegistro : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflar diseño del registro
+        // Cargamos el diseño de la pantalla de registro
         val view = inflater.inflate(R.layout.fragmento_registro, container, false)
 
         val etNombre = view.findViewById<EditText>(R.id.etRegisterNombre)
@@ -51,25 +53,25 @@ class FragmentoRegistro : Fragment() {
         val etContrasena = view.findViewById<EditText>(R.id.etRegisterContrasena)
         val btnRegistrar = view.findViewById<Button>(R.id.btnRegistrar)
 
-        // Acción del botón Registrar
+        // ¿Qué pasa al tocar "Registrar"?
         btnRegistrar.setOnClickListener {
             val nombre = etNombre.text.toString().trim()
             val telefono = etTelefono.text.toString().trim()
             val contrasena = etContrasena.text.toString().trim()
 
-            // Validar que todos los campos estén llenos
+            // Solo registramos si no dejó ningún campo vacío
             if (nombre.isNotEmpty() && telefono.isNotEmpty() && contrasena.isNotEmpty()) {
                 lifecycleScope.launch {
-                    // 1. Crear el objeto Usuario
+                    // 1. Creamos la "ficha" del nuevo usuario
                     val nuevoUsuario = Usuario(nombre = nombre, telefono = telefono, contrasena = contrasena)
                     
-                    // 2. Guardar en la DB y obtener el ID generado
+                    // 2. Le decimos al cerebro que lo guarde en la base de datos
                     val id = viewModel.registrarUsuario(nuevoUsuario).toInt()
                     
-                    // 3. Notificar al ViewModel sobre el nuevo usuario activo
+                    // 3. Activamos a este usuario como el actual
                     viewModel.setUsuarioId(id)
 
-                    // 4. Guardar datos en SharedPreferences para persistencia de la sesión
+                    // 4. Guardamos sus datos en la memoria del celular para que no tenga que volver a loguearse
                     val prefs = requireActivity().getSharedPreferences("UserSettings", Context.MODE_PRIVATE)
                     prefs.edit {
                         putString("userName", nombre)
@@ -77,12 +79,13 @@ class FragmentoRegistro : Fragment() {
                         putInt("currentUserId", id)
                     }
 
-                    Toast.makeText(context, "Registro exitoso", Toast.LENGTH_SHORT).show()
-                    // 5. Navegar a la pantalla principal de tareas
+                    Toast.makeText(context, "¡Bienvenido, $nombre!", Toast.LENGTH_SHORT).show()
+                    
+                    // 5. Lo mandamos directo a ver sus tareas
                     findNavController().navigate(R.id.action_FragmentoRegistro_to_FragmentoTareas)
                 }
             } else {
-                Toast.makeText(context, "Por favor llena todos los campos", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Por favor, completa todos los datos para continuar", Toast.LENGTH_SHORT).show()
             }
         }
 

@@ -10,20 +10,22 @@ import com.example.agenta.R
 import com.example.agenta.models.Tarea
 
 /**
- * Adaptador para el RecyclerView que muestra la lista de tareas.
- * Se encarga de vincular los datos de cada objeto [Tarea] con las vistas correspondientes.
+ * Esta clase es el "Dibujante" de la lista de tareas.
+ * Su trabajo es tomar la información de cada tarea y acomodarla en los cuadritos 
+ * que ves cuando abres la aplicación (vincular datos con diseño).
  */
 class AdaptadorTareas(
     private var listaTareas: List<Tarea>,
-    private val onVerClick: (Tarea) -> Unit, // Callback para ver detalles
-    private val onHechaClick: (Tarea) -> Unit // Callback para marcar como hecha
+    private val onVerClick: (Tarea) -> Unit, // Qué pasa al tocar "VER"
+    private val onHechaClick: (Tarea) -> Unit // Qué pasa al tocar el botón de completar
 ) : RecyclerView.Adapter<AdaptadorTareas.TareaViewHolder>() {
 
-    // Almacena el filtro activo para decidir qué elementos visuales mostrar/ocultar
+    // Guarda qué tipo de tareas estamos viendo ahora mismo (Próximas, Todas, etc.)
     private var filtroActual: String = "PROXIMAS"
 
     /**
-     * Clase interna que contiene las referencias a las vistas de un solo elemento de la lista.
+     * Esta clase interna guarda las referencias a las etiquetas de texto 
+     * y botones de cada cuadrito de tarea.
      */
     class TareaViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvMateria: TextView = view.findViewById(R.id.tvMateria)
@@ -34,7 +36,7 @@ class AdaptadorTareas(
     }
 
     /**
-     * Crea una nueva vista (inflada desde item_tarea.xml) cuando el RecyclerView la necesita.
+     * Esta función crea el "molde" o cuadrito vacío de la tarea.
      */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TareaViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_tarea, parent, false)
@@ -42,17 +44,18 @@ class AdaptadorTareas(
     }
 
     /**
-     * Vincula los datos de la tarea en la posición [position] con las vistas del [holder].
+     * Aquí es donde "rellenamos" el cuadrito con la información real de una tarea.
      */
     override fun onBindViewHolder(holder: TareaViewHolder, position: Int) {
         val tarea = listaTareas[position]
         
+        // Ponemos los textos en sus etiquetas correspondientes
         holder.tvMateria.text = tarea.materia
         holder.tvTarea.text = tarea.titulo
         holder.tvFecha.text = tarea.fechaEntrega
         holder.tvDescripcion.text = tarea.descripcion
 
-        // Configurar acción del botón según el texto que tenga asignado
+        // Configuramos qué hace el botón al tocarlo
         holder.btnVerDetalle.setOnClickListener {
             if (holder.btnVerDetalle.text == "VER") {
                 onVerClick(tarea)
@@ -61,29 +64,32 @@ class AdaptadorTareas(
             }
         }
 
-        // Lógica visual dinámica: oculta o muestra detalles según el filtro seleccionado
+        // Aquí decidimos qué partes del cuadrito mostrar según el filtro que elegimos
         when (filtroActual) {
             "PROXIMAS", "HECHAS", "PASADAS" -> {
-                holder.tvDescripcion.visibility = View.GONE
+                holder.tvDescripcion.visibility = View.GONE // Ocultamos la descripción larga
                 holder.btnVerDetalle.visibility = View.VISIBLE
                 holder.btnVerDetalle.text = "VER"
             }
             "TODAS" -> {
-                holder.tvDescripcion.visibility = View.VISIBLE
+                holder.tvDescripcion.visibility = View.VISIBLE // Mostramos todo el texto
                 holder.btnVerDetalle.visibility = View.VISIBLE
                 holder.btnVerDetalle.text = "VER"
             }
         }
     }
 
+    /**
+     * Le dice a la lista cuántas tareas tiene que dibujar en total.
+     */
     override fun getItemCount() = listaTareas.size
 
     /**
-     * Actualiza la lista de datos del adaptador y notifica al RecyclerView para refrescarse.
+     * Esta función se usa para cambiar las tareas que se muestran cuando filtras o buscas algo.
      */
     fun updateList(nuevaLista: List<Tarea>, filtro: String) {
         this.listaTareas = nuevaLista
         this.filtroActual = filtro
-        notifyDataSetChanged()
+        notifyDataSetChanged() // Le avisa a la pantalla que debe redibujar la lista
     }
 }

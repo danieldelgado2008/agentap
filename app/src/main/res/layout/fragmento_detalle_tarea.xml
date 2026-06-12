@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Esta pantalla se usa para dos cosas: crear una tarea nueva o ver los detalles de una que ya hiciste.
+    Es un formulario simple con espacios para escribir.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="24dp">
 
+    <!-- El título que aparece arriba -->
     <TextView
         android:id="@+id/tvNuevaTareaTitulo"
         android:layout_width="match_parent"
@@ -16,6 +21,7 @@
         android:textAlignment="center"
         android:textColor="#6200EE" />
 
+    <!-- Campo para escribir de qué materia es la tarea -->
     <EditText
         android:id="@+id/etMateria"
         android:layout_width="match_parent"
@@ -24,6 +30,7 @@
         android:inputType="text"
         android:layout_marginBottom="16dp"/>
 
+    <!-- Campo para escribir el título o nombre de la tarea -->
     <EditText
         android:id="@+id/etNombreTarea"
         android:layout_width="match_parent"
@@ -32,6 +39,7 @@
         android:inputType="text"
         android:layout_marginBottom="16dp"/>
 
+    <!-- Campo para la fecha en que se debe entregar -->
     <EditText
         android:id="@+id/etFechaEntrega"
         android:layout_width="match_parent"
@@ -40,6 +48,7 @@
         android:inputType="date"
         android:layout_marginBottom="16dp"/>
 
+    <!-- Campo más grande para escribir instrucciones o detalles extras -->
     <EditText
         android:id="@+id/etEspecificaciones"
         android:layout_width="match_parent"
@@ -49,6 +58,7 @@
         android:lines="3"
         android:layout_marginBottom="32dp"/>
 
+    <!-- Botón para confirmar y guardar la tarea en tu lista -->
     <Button
         android:id="@+id/btnGuardarTarea"
         android:layout_width="match_parent"

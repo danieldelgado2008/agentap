@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Este es el diseño de un solo "cuadrito" de tarea dentro de la lista.
+    Usamos un CardView para que tenga bordes redondeados y una pequeña sombra.
+-->
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -15,12 +19,14 @@
         android:padding="12dp"
         android:gravity="center_vertical">
 
+        <!-- Parte izquierda: Información de la tarea -->
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical">
 
+            <!-- El nombre de la materia (Ej: Matemáticas) -->
             <TextView
                 android:id="@+id/tvMateria"
                 android:layout_width="wrap_content"
@@ -29,6 +35,7 @@
                 android:textStyle="bold"
                 android:textColor="#6200EE"/>
 
+            <!-- El título principal de la tarea -->
             <TextView
                 android:id="@+id/tvTarea"
                 android:layout_width="wrap_content"
@@ -37,6 +44,7 @@
                 android:textSize="16sp"
                 android:textStyle="bold"/>
 
+            <!-- Una descripción más larga que solo se muestra a veces -->
             <TextView
                 android:id="@+id/tvDescripcion"
                 android:layout_width="match_parent"
@@ -45,8 +53,10 @@
                 android:textSize="14sp"
                 android:textColor="#666666"
                 android:layout_marginTop="4dp"
-                android:visibility="gone"/> </LinearLayout>
+                android:visibility="gone"/>
+        </LinearLayout>
 
+        <!-- Fecha de entrega destacada en color naranja -->
         <TextView
             android:id="@+id/tvFecha"
             android:layout_width="wrap_content"
@@ -56,6 +66,7 @@
             android:layout_marginHorizontal="8dp"
             android:textStyle="bold"/>
 
+        <!-- Botón para ver más detalles o completar la tarea -->
         <Button
             android:id="@+id/btnVerDetalle"
             android:layout_width="wrap_content"

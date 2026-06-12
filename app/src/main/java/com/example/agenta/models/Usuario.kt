@@ -4,12 +4,13 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 /**
- * Entidad que representa la tabla 'usuarios' en la base de datos.
+ * Esta clase define la "Ficha de Usuario".
+ * Es la estructura que tiene cada persona registrada en la base de datos.
  */
 @Entity(tableName = "usuarios")
 data class Usuario(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0, // ID único autoincremental
-    val nombre: String,                              // Nombre de usuario
-    val telefono: String = "",                       // Número de teléfono
-    val contrasena: String                           // Contraseña de acceso
+    @PrimaryKey(autoGenerate = true) val id: Int = 0, // Un número único para cada persona
+    val nombre: String,                              // El nombre que eligió el usuario
+    val telefono: String = "",                       // Su número de contacto
+    val contrasena: String                           // Su clave secreta
 )

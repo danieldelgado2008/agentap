@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Esta pantalla muestra la lista de tareas del usuario.
+    Usamos un ConstraintLayout para que los elementos se enganchen unos con otros de forma flexible.
+-->
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -6,6 +10,7 @@
     android:layout_height="match_parent"
     android:padding="16dp">
 
+    <!-- El encabezado de la pantalla -->
     <TextView
         android:id="@+id/tvTitulo"
         android:layout_width="wrap_content"
@@ -17,6 +22,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- Botón con el signo "+" para añadir una nueva tarea -->
     <ImageButton
         android:id="@+id/btnAgregar"
         android:layout_width="48dp"
@@ -27,6 +33,7 @@
         app:layout_constraintBottom_toBottomOf="@id/tvTitulo"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Barra de búsqueda para encontrar tareas por nombre -->
     <androidx.appcompat.widget.SearchView
         android:id="@+id/svBuscador"
         android:layout_width="0dp"
@@ -38,6 +45,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <!-- Hilera de botones para filtrar la lista (Todas, Pasadas o Hechas) -->
     <LinearLayout
         android:id="@+id/lyFiltros"
         android:layout_width="0dp"
@@ -80,6 +88,7 @@
             android:backgroundTint="#4CAF50"/>
     </LinearLayout>
 
+    <!-- El contenedor donde se dibujan todas las tareas que tienes anotadas -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvTareas"
         android:layout_width="0dp"

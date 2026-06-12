@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    Esta pantalla es la "Configuración".
+    Permite al usuario personalizar el aspecto de la app y cerrar su sesión.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/layoutConfiguracion"
     android:layout_width="match_parent"
@@ -7,6 +11,7 @@
     android:padding="24dp"
     android:gravity="center_horizontal">
 
+    <!-- Título de la sección de Ajustes -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -16,6 +21,7 @@
         android:textColor="#000000"
         android:layout_marginBottom="32dp"/>
 
+    <!-- Etiqueta para la opción de personalización de color -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -23,12 +29,14 @@
         android:textSize="18sp"
         android:layout_marginBottom="16dp"/>
 
+    <!-- Cuadraditos de colores que funcionan como botones para cambiar el fondo -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:layout_marginBottom="48dp">
 
+        <!-- Opción: Blanco -->
         <View
             android:id="@+id/colorWhite"
             android:layout_width="50dp"
@@ -38,6 +46,7 @@
             android:clickable="true"
             android:focusable="true"/>
 
+        <!-- Opción: Azul Claro -->
         <View
             android:id="@+id/colorLightBlue"
             android:layout_width="50dp"
@@ -47,6 +56,7 @@
             android:clickable="true"
             android:focusable="true"/>
 
+        <!-- Opción: Rosado Claro -->
         <View
             android:id="@+id/colorLightPink"
             android:layout_width="50dp"
@@ -56,6 +66,7 @@
             android:clickable="true"
             android:focusable="true"/>
 
+        <!-- Opción: Verde Claro -->
         <View
             android:id="@+id/colorLightGreen"
             android:layout_width="50dp"
@@ -66,6 +77,7 @@
             android:focusable="true"/>
     </LinearLayout>
 
+    <!-- Botón rojo para salir de la cuenta actual -->
     <Button
         android:id="@+id/btnLogout"
         android:layout_width="match_parent"
@@ -75,6 +87,7 @@
         android:textColor="#FFFFFF"
         android:layout_marginBottom="32dp"/>
 
+    <!-- Logo de la app con un toque de transparencia al final -->
     <ImageView
         android:layout_width="80dp"
         android:layout_height="80dp"

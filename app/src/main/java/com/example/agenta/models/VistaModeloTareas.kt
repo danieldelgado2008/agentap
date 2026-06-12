@@ -9,59 +9,62 @@ import com.example.agenta.notifications.GestorNotificaciones
 import kotlinx.coroutines.launch
 
 /**
- * ViewModel que actúa como intermediario entre la UI y la base de datos (Repository/DAOs).
- * Gestiona el estado de las tareas del usuario actual y la lógica de negocio como los puntos.
+ * Esta clase es el "Administrador de Datos" (ViewModel) de la aplicación.
+ * Imaginalo como una oficina que organiza todo: guarda tareas, busca usuarios y lleva la cuenta de los puntos.
+ * Su ventaja es que los datos no se borran si giras la pantalla del celular.
  */
 class VistaModeloTareas(application: Application) : AndroidViewModel(application) {
 
-    // Instancia de la base de datos y los DAOs para interactuar con Room
+    // Herramientas para hablar con la base de datos interna del celular
     private val db = AppDatabase.getDatabase(application)
     private val usuarioDao = db.usuarioDao()
     private val tareaDao = db.tareaDao()
 
-    // LiveData que almacena el ID del usuario que ha iniciado sesión actualmente
+    // Aquí guardamos el ID del usuario que está usando la app ahora mismo
     private val _usuarioIdActual = MutableLiveData<Int>()
     
     /**
-     * Lista reactiva de tareas. 
-     * Se actualiza automáticamente cada vez que cambia el [_usuarioIdActual] 
-     * gracias a switchMap, consultando a la DB por las tareas de ese usuario.
+     * Esta es la lista de tareas que se muestra en pantalla.
+     * Es "inteligente": cada vez que cambiamos de usuario, esta lista se actualiza sola
+     * pidiendo a la base de datos solo las tareas que le pertenecen a ese usuario.
      */
     val listaTareas: LiveData<List<Tarea>> = _usuarioIdActual.switchMap { id ->
         tareaDao.getTareasPorUsuario(id)
     }
 
-    // Almacena temporalmente una tarea seleccionada para ver sus detalles o editarla
+    // Un espacio temporal para guardar la tarea que el usuario está viendo o editando
     var tareaSeleccionada: Tarea? = null
 
     /**
-     * Establece el ID del usuario actual, disparando la actualización de [listaTareas].
+     * Le avisa a la app quién es el usuario actual para cargar sus cosas.
      */
     fun setUsuarioId(id: Int) {
         _usuarioIdActual.value = id
     }
 
     /**
-     * Obtiene el ID del usuario actual almacenado en el LiveData.
+     * Nos dice el ID del usuario que tiene la sesión abierta.
      */
     fun getUsuarioId(): Int? = _usuarioIdActual.value
 
     /**
-     * Inserta una nueva tarea en la base de datos y programa su notificación de recordatorio.
+     * Toma una tarea nueva, la guarda en la base de datos y pone una alarma 
+     * para que el celular te avise cuando sea hora de entregarla.
      */
     fun agregarTarea(nuevaTarea: Tarea) {
         viewModelScope.launch {
             val id = tareaDao.insertar(nuevaTarea)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                // Copiamos la tarea con el ID generado por Room para la configuración de la notificación
+                // Le pasamos el ID real que le dio la base de datos para la notificación
                 GestorNotificaciones.programarNotificaciones(getApplication(), nuevaTarea.copy(id = id.toInt()))
             }
         }
     }
 
     /**
-     * Marca una tarea como terminada y otorga 5 puntos de experiencia al usuario.
-     * Los puntos se guardan de forma persistente en SharedPreferences.
+     * Cuando terminas una tarea, esta función la marca como "Hecha" en la base de datos.
+     * ¡También te regala 5 puntos de experiencia por tu esfuerzo!
+     * Los puntos se guardan por separado para cada usuario.
      */
     fun marcarComoTerminada(tarea: Tarea) {
         viewModelScope.launch {
@@ -69,7 +72,7 @@ class VistaModeloTareas(application: Application) : AndroidViewModel(application
             val tareaActualizada = tarea.copy(estaHecha = true)
             tareaDao.actualizar(tareaActualizada)
             
-            // Los puntos se guardan en SharedPreferences ligados al ID del usuario para que sean únicos por perfil
+            // Buscamos los puntos que ya tenías y le sumamos 5
             val prefs = getApplication<Application>().getSharedPreferences("UserStats_$userId", Context.MODE_PRIVATE)
             val currentPoints = prefs.getInt("userPoints", 0)
             prefs.edit { putInt("userPoints", currentPoints + 5) }
@@ -77,14 +80,14 @@ class VistaModeloTareas(application: Application) : AndroidViewModel(application
     }
 
     /**
-     * Realiza el proceso de login buscando un usuario con nombre y contraseña coincidentes.
+     * Busca en la base de datos si existe alguien con ese nombre y contraseña.
      */
     suspend fun login(nombre: String, contrasena: String): Usuario? {
         return usuarioDao.login(nombre, contrasena)
     }
 
     /**
-     * Registra un nuevo usuario en la base de datos y devuelve su ID generado automáticamente.
+     * Crea un perfil nuevo en la base de datos y nos da el número de ID que le asignó.
      */
     suspend fun registrarUsuario(usuario: Usuario): Long {
         return usuarioDao.registrar(usuario)
