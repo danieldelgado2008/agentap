@@ -12,38 +12,46 @@ import android.widget.Toast
 import androidx.core.content.edit
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.agenta.R
+import com.example.agenta.models.VistaModeloTareas
 
 /**
- * Fragmento de la mascota (gamificación).
- * Muestra los puntos acumulados y permite comprar accesorios para el dinosaurio.
+ * Fragmento que gestiona la personalización de la mascota.
+ * Los puntos y accesorios están ligados al ID del usuario actual.
  */
 class FragmentoMascota : Fragment() {
+
+    private lateinit var viewModel: VistaModeloTareas
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragmento_mascota, container, false)
+        viewModel = ViewModelProvider(requireActivity())[VistaModeloTareas::class.java]
 
         val tvPuntos = view.findViewById<TextView>(R.id.tvPuntos)
 
-        // Obtener puntos acumulados de SharedPreferences (ganados al completar tareas)
-        val statsPrefs = requireActivity().getSharedPreferences("UserStats", Context.MODE_PRIVATE)
-        val puntos = statsPrefs.getInt("userPoints", 0)
+        // Obtenemos el ID del usuario para diferenciar sus datos de otros usuarios
+        val userId = viewModel.getUsuarioId() ?: -1
+
+        // SharedPreferences únicas por usuario usando su ID como sufijo
+        val statsPrefs = requireActivity().getSharedPreferences("UserStats_$userId", Context.MODE_PRIVATE)
+        val cosmeticPrefs = requireActivity().getSharedPreferences("Cosmetics_$userId", Context.MODE_PRIVATE)
+
+        // Carga y muestra los puntos del usuario
+        var puntos = statsPrefs.getInt("userPoints", 0)
         tvPuntos.text = "Puntos: $puntos"
 
-        // Preferencias para guardar qué cosméticos han sido comprados
-        val cosmeticPrefs = requireActivity().getSharedPreferences("Cosmetics", Context.MODE_PRIVATE)
-
         /**
-         * Función auxiliar para configurar la lógica de compra y visualización de cada item.
+         * Configura la lógica de compra y equipamiento de un accesorio.
          */
         fun setupBuy(btnId: Int, cost: Int, prefKey: String, imgId: Int) {
             val img = view.findViewById<ImageView>(imgId)
             val button = view.findViewById<Button>(btnId)
             
-            // Si ya fue comprado, mostrarlo y cambiar texto del botón
+            // Si ya lo compró anteriormente, lo mostramos y cambiamos el texto del botón
             if (cosmeticPrefs.getBoolean(prefKey, false)) {
                 img.isVisible = true
                 button.text = "Equipado"
@@ -51,23 +59,26 @@ class FragmentoMascota : Fragment() {
 
             button.setOnClickListener {
                 if (cosmeticPrefs.getBoolean(prefKey, false)) {
-                    // Si ya se tiene, alterna entre ocultar/mostrar
+                    // Si ya es suyo, el botón alterna la visibilidad (Equipar/Desequipar)
                     img.isVisible = !img.isVisible
                 } else if (puntos >= cost) {
-                    // Si no se tiene y hay puntos suficientes: comprar
-                    statsPrefs.edit { putInt("userPoints", puntos - cost) }
+                    // Lógica de compra: descuenta puntos y marca como comprado
+                    puntos -= cost
+                    statsPrefs.edit { putInt("userPoints", puntos) }
                     cosmeticPrefs.edit { putBoolean(prefKey, true) }
+                    
                     img.isVisible = true
                     button.text = "Equipado"
-                    tvPuntos.text = "Puntos: ${puntos - cost}"
+                    tvPuntos.text = "Puntos: $puntos"
                     Toast.makeText(context, "¡Comprado!", Toast.LENGTH_SHORT).show()
                 } else {
+                    // No tiene suficientes puntos
                     Toast.makeText(context, "Puntos insuficientes", Toast.LENGTH_SHORT).show()
                 }
             }
         }
 
-        // Configurar todos los items disponibles en la tienda
+        // Configuración de los diferentes accesorios disponibles
         setupBuy(R.id.btnBuyHat, 20, "hasHat", R.id.imgHat)
         setupBuy(R.id.btnBuyGlasses, 15, "hasGlasses", R.id.imgGlasses)
         setupBuy(R.id.btnBuyBowtie, 10, "hasBowtie", R.id.imgBowtie)

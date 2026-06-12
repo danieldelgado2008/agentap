@@ -19,10 +19,6 @@ import com.example.agenta.models.Usuario
 import com.example.agenta.models.VistaModeloTareas
 import kotlinx.coroutines.launch
 
-/**
- * Fragmento para el registro de nuevos usuarios.
- * Crea una cuenta en la base de datos y guarda información de contacto en preferencias.
- */
 class FragmentoRegistro : Fragment() {
 
     private lateinit var viewModel: VistaModeloTareas
@@ -31,7 +27,6 @@ class FragmentoRegistro : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(requireActivity())[VistaModeloTareas::class.java]
 
-        // Manejar el botón de atrás del sistema para cerrar la actividad y volver al Login Activity real
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 requireActivity().finish()
@@ -46,33 +41,35 @@ class FragmentoRegistro : Fragment() {
         val view = inflater.inflate(R.layout.fragmento_registro, container, false)
 
         val etNombre = view.findViewById<EditText>(R.id.etRegisterNombre)
-        val etEmail = view.findViewById<EditText>(R.id.etRegisterEmail)
         val etTelefono = view.findViewById<EditText>(R.id.etRegisterTelefono)
         val etContrasena = view.findViewById<EditText>(R.id.etRegisterContrasena)
         val btnRegistrar = view.findViewById<Button>(R.id.btnRegistrar)
 
         btnRegistrar.setOnClickListener {
             val nombre = etNombre.text.toString()
-            val email = etEmail.text.toString()
             val telefono = etTelefono.text.toString()
             val contrasena = etContrasena.text.toString()
 
-            if (nombre.isNotEmpty() && email.isNotEmpty() && telefono.isNotEmpty() && contrasena.isNotEmpty()) {
-                // Registrar el usuario en la base de datos Room
+            if (nombre.isNotEmpty() && telefono.isNotEmpty() && contrasena.isNotEmpty()) {
                 lifecycleScope.launch {
+                    // Crea un objeto Usuario con los datos ingresados
                     val nuevoUsuario = Usuario(nombre = nombre, contrasena = contrasena)
-                    viewModel.registrarUsuario(nuevoUsuario)
+                    
+                    // Registra el usuario en la DB y obtiene el ID generado
+                    val id = viewModel.registrarUsuario(nuevoUsuario).toInt()
+                    
+                    // Establece el ID en el ViewModel para que las tareas funcionen inmediatamente
+                    viewModel.setUsuarioId(id)
 
-                    // Guardar datos adicionales en SharedPreferences para la pantalla de Perfil
+                    // Guarda los datos del usuario en SharedPreferences
                     val prefs = requireActivity().getSharedPreferences("UserSettings", Context.MODE_PRIVATE)
                     prefs.edit {
                         putString("userName", nombre)
-                        putString("userEmail", email)
                         putString("userPhone", telefono)
+                        putInt("currentUserId", id) // Guardamos el ID para persistencia
                     }
 
                     Toast.makeText(context, "Registro exitoso", Toast.LENGTH_SHORT).show()
-                    // Navegar a la lista de tareas después del registro exitoso
                     findNavController().navigate(R.id.action_FragmentoRegistro_to_FragmentoTareas)
                 }
             } else {

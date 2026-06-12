@@ -11,53 +11,70 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import java.util.concurrent.TimeUnit
 
-/**
- * Objeto encargado de programar notificaciones de recordatorio para las tareas.
- * Utiliza WorkManager para ejecutar tareas en segundo plano de forma eficiente.
- */
 object GestorNotificaciones {
 
     @RequiresApi(Build.VERSION_CODES.O)
+    private val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
+
+    @RequiresApi(Build.VERSION_CODES.O)
     fun programarNotificaciones(context: Context, tarea: Tarea) {
-        val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-        val fechaTarea: LocalDate
-        try {
-            // Intentar parsear la fecha de la tarea
-            fechaTarea = if (tarea.fechaEntrega.length == 5) {
-                LocalDate.parse("${tarea.fechaEntrega}/2026", formatter)
-            } else {
-                LocalDate.parse(tarea.fechaEntrega, formatter)
-            }
-        } catch (e: Exception) {
-            return // Si la fecha tiene un formato inválido, no programar nada
+        val hoy = LocalDate.now()
+        val fechaEntrega = parsearFechaSegura(tarea.fechaEntrega) ?: return
+
+        val diasDiferencia = ChronoUnit.DAYS.between(hoy, fechaEntrega)
+
+        if (diasDiferencia >= 7) {
+            programarAviso(context, tarea, 7, "Tu tarea '${tarea.titulo}' vence en una semana")
         }
 
-        // Programar una notificación para el día anterior a la entrega a las 9 AM
-        val fechaNotificacion = fechaTarea.minusDays(1).atTime(LocalTime.of(9, 0))
-        val ahora = LocalDateTime.now()
+        if (diasDiferencia >= 1) {
+            programarAviso(context, tarea, 1, "Mañana se entrega '${tarea.titulo}'")
+        }
 
-        // Solo programar si la fecha del recordatorio es futura
-        if (fechaNotificacion.isAfter(ahora)) {
-            val delay = java.time.Duration.between(ahora, fechaNotificacion).toMillis()
+        if (diasDiferencia >= 0) {
+            programarAviso(context, tarea, 0, "¡Hoy se entrega '${tarea.titulo}'!")
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun parsearFechaSegura(fechaStr: String): LocalDate? {
+        return try {
+            if (fechaStr.length == 5 && fechaStr.contains("/")) {
+                LocalDate.parse("$fechaStr/2026", formatter)
+            } else {
+                LocalDate.parse(fechaStr, formatter)
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun programarAviso(context: Context, tarea: Tarea, diasAntes: Long, mensaje: String) {
+        val hoy = LocalDateTime.now()
+        val fechaEntrega = parsearFechaSegura(tarea.fechaEntrega) ?: return
+        val horaAviso = LocalTime.of(8, 0)
+
+        val momentoAviso = fechaEntrega.minusDays(diasAntes).atTime(horaAviso)
+
+        if (momentoAviso.isAfter(hoy)) {
+            val delaySegundos = ChronoUnit.SECONDS.between(hoy, momentoAviso)
             
-            // Datos que se pasarán al Worker cuando se ejecute
             val data = Data.Builder()
-                .putInt("tareaId", tarea.id)
-                .putString("titulo", "Recordatorio: ${tarea.titulo}")
-                .putString("mensaje", "Mañana vence tu tarea de ${tarea.materia}")
+                .putString("TITULO_TAREA", "Recordatorio de Tarea")
+                .putString("MENSAJE_NOTIFICACION", mensaje)
+                .putInt("ID_TAREA", tarea.id + (diasAntes * 1000).toInt())
                 .build()
 
-            // Crear la solicitud de trabajo con un retardo (delay)
-            val workRequest = OneTimeWorkRequestBuilder<NotificacionTareaWorker>()
-                .setInitialDelay(delay, TimeUnit.MILLISECONDS)
+            val request = OneTimeWorkRequestBuilder<NotificacionTareaWorker>()
+                .setInitialDelay(delaySegundos, TimeUnit.SECONDS)
                 .setInputData(data)
-                .addTag("notificacion_${tarea.id}")
                 .build()
 
-            // Encolar el trabajo en WorkManager
-            WorkManager.getInstance(context).enqueue(workRequest)
+            WorkManager.getInstance(context).enqueue(request)
         }
     }
 }

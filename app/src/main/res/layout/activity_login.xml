@@ -28,7 +28,7 @@
         android:id="@+id/etUsuario"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Usuario o Correo"
+        android:hint="Nombre de Usuario"
         android:inputType="textPersonName"
         android:layout_marginBottom="16dp"/>
 

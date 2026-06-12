@@ -14,10 +14,6 @@ import com.example.agenta.R
 import com.example.agenta.models.Tarea
 import com.example.agenta.models.VistaModeloTareas
 
-/**
- * Fragmento para crear una nueva tarea.
- * Recopila los datos ingresados por el usuario y los guarda en la base de datos.
- */
 class FragmentoNuevaTarea : Fragment() {
 
     private lateinit var viewModel: VistaModeloTareas
@@ -36,28 +32,33 @@ class FragmentoNuevaTarea : Fragment() {
         val btnGuardar = view.findViewById<Button>(R.id.btnGuardarTarea)
 
         btnGuardar.setOnClickListener {
+            // Obtenemos los textos de los campos de entrada
             val materia = etMateria.text.toString().trim()
             val nombreTarea = etNombreTarea.text.toString().trim()
             val fecha = etFechaEntrega.text.toString().trim()
             val especificaciones = etEspecificaciones.text.toString().trim()
 
-            // Validar campos obligatorios
-            if (materia.isNotEmpty() && nombreTarea.isNotEmpty()) {
-                // Crear objeto Tarea con ID 0 (Room lo generará automáticamente)
+            // Obtenemos el ID del usuario actual desde el ViewModel
+            val userId = viewModel.getUsuarioId()
+
+            // Validamos que los campos obligatorios no estén vacíos y que haya un usuario logueado
+            if (materia.isNotEmpty() && nombreTarea.isNotEmpty() && userId != null) {
+                // Creamos el objeto Tarea ligado al userId
                 val nuevaTarea = Tarea(
-                    id = 0,
+                    usuarioId = userId,
                     materia = materia,
                     titulo = nombreTarea,
                     fechaEntrega = if (fecha.isNotEmpty()) fecha else "Sin fecha",
                     descripcion = especificaciones
                 )
-                // Guardar en base de datos mediante el ViewModel
+                
+                // Guardamos la tarea en la base de datos a través del ViewModel
                 viewModel.agregarTarea(nuevaTarea)
 
                 Toast.makeText(context, "Tarea '$nombreTarea' guardada con éxito", Toast.LENGTH_SHORT).show()
-                findNavController().popBackStack() // Regresar a la pantalla anterior
+                findNavController().popBackStack() // Regresa a la lista de tareas
             } else {
-                Toast.makeText(context, "Por favor, llena los campos obligatorios (Materia y Tarea)", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Error al guardar tarea: asegúrate de llenar materia y nombre", Toast.LENGTH_SHORT).show()
             }
         }
 

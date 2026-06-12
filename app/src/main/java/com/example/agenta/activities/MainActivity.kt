@@ -2,6 +2,7 @@ package com.example.agenta.activities
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
@@ -15,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
@@ -22,17 +24,14 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import com.example.agenta.R
 import com.example.agenta.databinding.ActivityMainBinding
+import com.example.agenta.models.VistaModeloTareas
 
-/**
- * Actividad principal que actúa como contenedor de los fragmentos de la aplicación.
- * Gestiona la navegación, la barra de herramientas (Toolbar), notificaciones y permisos.
- */
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     private lateinit var binding: ActivityMainBinding
+    private lateinit var viewModel: VistaModeloTareas
 
-    // Lanzador para solicitar permisos de notificaciones (requerido en Android 13+)
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted: Boolean ->
@@ -43,14 +42,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Habilitar diseño de borde a borde (edge-to-edge)
         enableEdgeToEdge()
 
-        // Inicializar ViewBinding para acceder a las vistas del layout activity_main
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Aplicar color de fondo personalizado
+        viewModel = ViewModelProvider(this)[VistaModeloTareas::class.java]
+        val userPrefs = getSharedPreferences("UserSettings", Context.MODE_PRIVATE)
+        val userId = userPrefs.getInt("currentUserId", -1)
+        if (userId != -1) {
+            viewModel.setUsuarioId(userId)
+        }
+
         val prefs = getSharedPreferences("Settings", MODE_PRIVATE)
         val colorHex = prefs.getString("backgroundColor", "#FFFFFF") ?: "#FFFFFF"
         try {
@@ -59,44 +62,34 @@ class MainActivity : AppCompatActivity() {
             binding.main.setBackgroundColor(Color.WHITE)
         }
 
-        // Ajustar el padding para que el contenido no quede oculto bajo las barras del sistema
         ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
 
-        // Configurar la barra de herramientas (Toolbar)
         setSupportActionBar(binding.toolbar)
 
-        // Configurar el NavHostFragment para la navegación entre fragmentos
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
         val navController = navHostFragment.navController
 
-        // Configurar la barra de navegación con el controlador de navegación
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        // Verificar si se debe navegar directamente al fragmento de registro (desde LoginActivity)
         if (intent.getBooleanExtra("goToRegister", false)) {
             navController.navigate(R.id.FragmentoRegistro)
         }
 
-        // Configurar el botón flotante (FAB) para ir a la pantalla de la mascota
         binding.fab.setImageResource(R.drawable.ic_dinosaurio_boton)
         binding.fab.setOnClickListener {
             navController.navigate(R.id.FragmentoMascota)
         }
 
-        // Inicialización de funciones de notificaciones
         crearCanalNotificaciones()
         solicitarPermisoNotificaciones()
     }
 
-    /**
-     * Crea un canal de notificaciones necesario para mostrar alertas en Android 8.0+.
-     */
     private fun crearCanalNotificaciones() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = "Recordatorios de Tareas"
@@ -111,9 +104,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Solicita permiso para enviar notificaciones en Android 13+.
-     */
     private fun solicitarPermisoNotificaciones() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.POST_NOTIFICATIONS) !=
@@ -124,17 +114,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Infla el menú de opciones en la barra de herramientas.
-     */
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main_menu, menu)
         return true
     }
 
-    /**
-     * Maneja la selección de items en el menú superior.
-     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return when (item.itemId) {
@@ -150,12 +134,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Maneja la acción de "ir hacia atrás" en la barra de herramientas.
-     */
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
-        // Si estamos en registro, al volver atrás cerramos la actividad para regresar al Login real
         if (navController.currentDestination?.id == R.id.FragmentoRegistro) {
             finish()
             return true

@@ -4,68 +4,68 @@ import android.app.Application
 import android.content.Context
 import android.os.Build
 import androidx.core.content.edit
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.example.agenta.notifications.GestorNotificaciones
 import kotlinx.coroutines.launch
 
-/**
- * ViewModel que actúa como intermediario entre la UI y la base de datos Room.
- * Gestiona el ciclo de vida de los datos y asegura que persistan tras cambios de configuración.
- */
 class VistaModeloTareas(application: Application) : AndroidViewModel(application) {
 
-    // Inicialización de la base de datos y los DAOs
+    // Instancia de la base de datos y los DAOs para interactuar con Room
     private val db = AppDatabase.getDatabase(application)
     private val tareaDao = db.tareaDao()
     private val usuarioDao = db.usuarioDao()
 
-    // Lista de tareas observada desde la base de datos
-    val listaTareas: LiveData<List<Tarea>> = tareaDao.getAllTareas()
+    // ID del usuario que ha iniciado sesión actualmente
+    private val _usuarioIdActual = MutableLiveData<Int>()
+    
+    // Lista de tareas que se actualiza automáticamente cuando cambia el usuarioIdActual
+    val listaTareas: LiveData<List<Tarea>> = _usuarioIdActual.switchMap { id ->
+        tareaDao.getTareasPorUsuario(id)
+    }
 
-    // Tarea seleccionada actualmente para ver detalles
+    // Tarea que se selecciona para ver detalles o editar
     var tareaSeleccionada: Tarea? = null
 
-    /**
-     * Agrega una nueva tarea a la base de datos y programa su notificación.
-     */
+    // Establece el ID del usuario actual
+    fun setUsuarioId(id: Int) {
+        _usuarioIdActual.value = id
+    }
+
+    // Obtiene el ID del usuario actual
+    fun getUsuarioId(): Int? = _usuarioIdActual.value
+
+    // Agrega una nueva tarea y programa una notificación
     fun agregarTarea(nuevaTarea: Tarea) {
         viewModelScope.launch {
             val id = tareaDao.insertar(nuevaTarea)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                // Notificaciones para recordatorios
+                // Copiamos la tarea con el ID generado para la notificación
                 GestorNotificaciones.programarNotificaciones(getApplication(), nuevaTarea.copy(id = id.toInt()))
             }
         }
     }
 
-    /**
-     * Actualiza el estado de una tarea a 'completada' y otorga puntos al usuario.
-     */
+    // Marca una tarea como terminada y otorga puntos al usuario
     fun marcarComoTerminada(tarea: Tarea) {
         viewModelScope.launch {
+            val userId = getUsuarioId() ?: return@launch
             val tareaActualizada = tarea.copy(estaHecha = true)
             tareaDao.actualizar(tareaActualizada)
             
-            // Otorgar 5 puntos de recompensa
-            val prefs = getApplication<Application>().getSharedPreferences("UserStats", Context.MODE_PRIVATE)
+            // Los puntos se guardan en SharedPreferences ligados al ID del usuario
+            val prefs = getApplication<Application>().getSharedPreferences("UserStats_$userId", Context.MODE_PRIVATE)
             val currentPoints = prefs.getInt("userPoints", 0)
             prefs.edit { putInt("userPoints", currentPoints + 5) }
         }
     }
 
-    /**
-     * Verifica las credenciales del usuario (función de utilidad para Login).
-     */
+    // Intento de inicio de sesión buscando en la base de datos
     suspend fun login(nombre: String, contrasena: String): Usuario? {
         return usuarioDao.login(nombre, contrasena)
     }
 
-    /**
-     * Registra un nuevo usuario en la base de datos.
-     */
-    suspend fun registrarUsuario(usuario: Usuario) {
-        usuarioDao.registrar(usuario)
+    // Registra un nuevo usuario y devuelve su ID
+    suspend fun registrarUsuario(usuario: Usuario): Long {
+        return usuarioDao.registrar(usuario)
     }
 }

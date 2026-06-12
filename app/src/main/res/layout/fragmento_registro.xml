@@ -38,19 +38,6 @@
         android:layout_height="16dp" />
 
     <EditText
-        android:id="@+id/etRegisterEmail"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:hint="Correo"
-        android:inputType="textEmailAddress"
-        android:paddingLeft="16dp"
-        android:background="@android:drawable/edit_text"/>
-
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="16dp" />
-
-    <EditText
         android:id="@+id/etRegisterTelefono"
         android:layout_width="match_parent"
         android:layout_height="50dp"
