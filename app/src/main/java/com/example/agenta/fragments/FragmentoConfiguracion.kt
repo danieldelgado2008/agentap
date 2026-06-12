@@ -29,19 +29,19 @@ class FragmentoConfiguracion : Fragment() {
         // Preparamos el acceso a la memoria de ajustes del celular
         val prefs = requireActivity().getSharedPreferences("Settings", Context.MODE_PRIVATE)
 
-        // Configuramos los botoncitos de colores para que guarden el color al tocarlos
+        // Configuramos los botones de colores para que guarden el color al tocarlos
         view.findViewById<View>(R.id.colorWhite).setOnClickListener { setBgColor("#FFFFFF", prefs) }
         view.findViewById<View>(R.id.colorLightBlue).setOnClickListener { setBgColor("#E3F2FD", prefs) }
         view.findViewById<View>(R.id.colorLightPink).setOnClickListener { setBgColor("#FCE4EC", prefs) }
         view.findViewById<View>(R.id.colorLightGreen).setOnClickListener { setBgColor("#E8F5E9", prefs) }
 
-        // ¿Qué pasa al tocar "Cerrar Sesión"?
+        // cerrar sesion boton
         view.findViewById<Button>(R.id.btnLogout).setOnClickListener {
-            // 1. Borramos toda la información del usuario en este celular
+            // Borramos toda la información del usuario en este celular
             val userPrefs = requireActivity().getSharedPreferences("UserSettings", Context.MODE_PRIVATE)
             userPrefs.edit { clear() }
 
-            // 2. Lo mandamos de regreso a la pantalla de Inicio de Sesión
+            // Lo mandamos de regreso a la pantalla de Inicio de Sesión
             val intent = Intent(requireContext(), LoginActivity::class.java)
             // Esto hace que no pueda darle a "atrás" para volver a entrar
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK

@@ -23,13 +23,13 @@ import kotlinx.coroutines.launch
  */
 class LoginActivity : AppCompatActivity() {
 
-    // El "cerebro" que maneja los datos de las tareas y usuarios
+    //  maneja los datos de las tareas y usuarios
     private lateinit var viewModel: VistaModeloTareas
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // PASO 1: Revisar si el usuario ya tiene una sesión abierta en el celular.
+        // Revisar si el usuario ya tiene una sesión abierta en el celular.
         // Si ya hay un ID de usuario guardado, significa que no necesita volver a loguearse.
         val userPrefs = getSharedPreferences("UserSettings", Context.MODE_PRIVATE)
         if (userPrefs.contains("currentUserId")) {
@@ -45,7 +45,7 @@ class LoginActivity : AppCompatActivity() {
         // Conectamos con el ViewModel (el administrador de datos)
         viewModel = ViewModelProvider(this)[VistaModeloTareas::class.java]
 
-        // PASO 2: Personalización visual.
+        // Personalización visual.
         // Buscamos si el usuario eligió un color de fondo especial en la configuración.
         val prefsSettings = getSharedPreferences("Settings", MODE_PRIVATE)
         val colorHex = prefsSettings.getString("backgroundColor", "#FFFFFF") ?: "#FFFFFF"
@@ -61,7 +61,7 @@ class LoginActivity : AppCompatActivity() {
         val btnIniciarSesion = findViewById<Button>(R.id.btnIniciarSesion)
         val btnNuevaSesion = findViewById<Button>(R.id.btnNuevaSesion)
 
-        // PASO 3: ¿Qué pasa cuando le das clic a "Iniciar Sesión"?
+        // lo que pasa cuando le das clic a "Iniciar Sesión"
         btnIniciarSesion.setOnClickListener {
             val usuario = etUsuario.text.toString().trim()
             val contrasena = etContrasena.text.toString().trim()
@@ -72,7 +72,7 @@ class LoginActivity : AppCompatActivity() {
                 lifecycleScope.launch {
                     val user = viewModel.login(usuario, contrasena)
                     if (user != null) {
-                        // ¡Éxito! Guardamos los datos del usuario en la memoria del teléfono
+                        //  Guardamos los datos del usuario en la memoria del teléfono
                         // para que la app sepa quién es mientras la usa.
                         val prefs = getSharedPreferences("UserSettings", Context.MODE_PRIVATE)
                         prefs.edit {
@@ -95,7 +95,7 @@ class LoginActivity : AppCompatActivity() {
             }
         }
 
-        // PASO 4: Botón para ir a crear una cuenta nueva
+        //  Botón para ir a crear una cuenta nueva
         btnNuevaSesion.setOnClickListener {
             val intent = Intent(this, MainActivity::class.java)
             intent.putExtra("goToRegister", true) // Un mensaje especial para que sepa que debe ir a Registro

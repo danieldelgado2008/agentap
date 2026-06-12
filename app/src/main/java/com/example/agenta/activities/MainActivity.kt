@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
         // Iniciamos el "cerebro" de datos (ViewModel) para esta pantalla
         viewModel = ViewModelProvider(this)[VistaModeloTareas::class.java]
         
-        // PASO 1: Identificar quién está usando la app.
+        //  Identificar quién está usando la app.
         // Buscamos en la memoria del celular el ID del usuario que inició sesión.
         val userPrefs = getSharedPreferences("UserSettings", Context.MODE_PRIVATE)
         val userId = userPrefs.getInt("currentUserId", -1)
@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
             viewModel.setUsuarioId(userId)
         }
 
-        // PASO 2: Fondo personalizado.
+        // Fondo personalizado.
         // Aplicamos el color de fondo que el usuario haya guardado en ajustes.
         val prefs = getSharedPreferences("Settings", MODE_PRIVATE)
         val colorHex = prefs.getString("backgroundColor", "#FFFFFF") ?: "#FFFFFF"
@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity() {
         // Ponemos la barra de herramientas arriba con el nombre de la app
         setSupportActionBar(binding.toolbar)
 
-        // PASO 3: Control de navegación.
+        //  Control de navegación.
         // Aquí configuramos el sistema que permite cambiar entre pantallas (Tareas, Perfil, etc.)
         val navHostFragment =
             supportFragmentManager.findFragmentById(R.id.nav_host_fragment_content_main) as NavHostFragment
@@ -102,7 +102,7 @@ class MainActivity : AppCompatActivity() {
             navController.navigate(R.id.FragmentoRegistro)
         }
 
-        // PASO 4: El botón circular del dinosaurio (FAB).
+        // El botón circular del dinosaurio (FAB).
         // Al darle clic, te lleva a ver a tu mascota.
         binding.fab.setImageResource(R.drawable.ic_dinosaurio_boton)
         binding.fab.setOnClickListener {

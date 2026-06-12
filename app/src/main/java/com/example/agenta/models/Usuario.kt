@@ -12,5 +12,5 @@ data class Usuario(
     @PrimaryKey(autoGenerate = true) val id: Int = 0, // Un número único para cada persona
     val nombre: String,                              // El nombre que eligió el usuario
     val telefono: String = "",                       // Su número de contacto
-    val contrasena: String                           // Su clave secreta
+    val contrasena: String                           // Su contraseña
 )

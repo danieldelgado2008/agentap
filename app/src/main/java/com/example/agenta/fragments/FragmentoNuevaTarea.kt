@@ -26,7 +26,7 @@ class FragmentoNuevaTarea : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Cargamos el diseño de la pantalla de detalles (que sirve para crear y para ver)
+        // Cargamos el diseño de la pantalla de detalles que sirve para crear y para ver
         val view = inflater.inflate(R.layout.fragmento_detalle_tarea, container, false)
         viewModel = ViewModelProvider(requireActivity())[VistaModeloTareas::class.java]
 
@@ -37,7 +37,7 @@ class FragmentoNuevaTarea : Fragment() {
         val etEspecificaciones = view.findViewById<EditText>(R.id.etEspecificaciones)
         val btnGuardar = view.findViewById<Button>(R.id.btnGuardarTarea)
 
-        // ¿Qué pasa cuando el usuario toca "Guardar"?
+        // click en guardar
         btnGuardar.setOnClickListener {
             val materia = etMateria.text.toString().trim()
             val nombreTarea = etNombreTarea.text.toString().trim()
@@ -49,7 +49,7 @@ class FragmentoNuevaTarea : Fragment() {
 
             // Validamos: obligatorio poner materia y nombre de la tarea
             if (materia.isNotEmpty() && nombreTarea.isNotEmpty() && userId != null) {
-                // Creamos la "ficha" de la tarea con todo lo que escribió el usuario
+                // Creamos la "ficha" de la tarea con toda la información puesta
                 val nuevaTarea = Tarea(
                     usuarioId = userId,
                     materia = materia,

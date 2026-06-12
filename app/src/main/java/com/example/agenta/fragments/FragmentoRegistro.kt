@@ -32,7 +32,7 @@ class FragmentoRegistro : Fragment() {
         // Conectamos con el cerebro de datos
         viewModel = ViewModelProvider(requireActivity())[VistaModeloTareas::class.java]
 
-        // Si el usuario presiona el botón físico de "atrás" en el celular, 
+        // Si el usuario presiona el botón  de "atrás" en el celular,
         // cerramos la app para que no regrese a la pantalla de login vacía.
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -53,7 +53,7 @@ class FragmentoRegistro : Fragment() {
         val etContrasena = view.findViewById<EditText>(R.id.etRegisterContrasena)
         val btnRegistrar = view.findViewById<Button>(R.id.btnRegistrar)
 
-        // ¿Qué pasa al tocar "Registrar"?
+        // al dar click en registrar
         btnRegistrar.setOnClickListener {
             val nombre = etNombre.text.toString().trim()
             val telefono = etTelefono.text.toString().trim()
@@ -62,16 +62,16 @@ class FragmentoRegistro : Fragment() {
             // Solo registramos si no dejó ningún campo vacío
             if (nombre.isNotEmpty() && telefono.isNotEmpty() && contrasena.isNotEmpty()) {
                 lifecycleScope.launch {
-                    // 1. Creamos la "ficha" del nuevo usuario
+                    // Creamos la "ficha" del nuevo usuario
                     val nuevoUsuario = Usuario(nombre = nombre, telefono = telefono, contrasena = contrasena)
                     
-                    // 2. Le decimos al cerebro que lo guarde en la base de datos
+                    // Le decimos al cerebro que lo guarde en la base de datos
                     val id = viewModel.registrarUsuario(nuevoUsuario).toInt()
                     
-                    // 3. Activamos a este usuario como el actual
+                    // Activamos a este usuario como el actual
                     viewModel.setUsuarioId(id)
 
-                    // 4. Guardamos sus datos en la memoria del celular para que no tenga que volver a loguearse
+                    // Guardamos sus datos en la memoria del celular para que no tenga que volver a loguearse
                     val prefs = requireActivity().getSharedPreferences("UserSettings", Context.MODE_PRIVATE)
                     prefs.edit {
                         putString("userName", nombre)

@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 
 /**
  * Esta clase es el "Administrador de Datos" (ViewModel) de la aplicación.
- * Imaginalo como una oficina que organiza todo: guarda tareas, busca usuarios y lleva la cuenta de los puntos.
+ * Iorganiza todo: guarda tareas, busca usuarios y lleva la cuenta de los puntos.
  * Su ventaja es que los datos no se borran si giras la pantalla del celular.
  */
 class VistaModeloTareas(application: Application) : AndroidViewModel(application) {
@@ -25,7 +25,7 @@ class VistaModeloTareas(application: Application) : AndroidViewModel(application
     
     /**
      * Esta es la lista de tareas que se muestra en pantalla.
-     * Es "inteligente": cada vez que cambiamos de usuario, esta lista se actualiza sola
+     *  cada vez que cambiamos de usuario, esta lista se actualiza sola
      * pidiendo a la base de datos solo las tareas que le pertenecen a ese usuario.
      */
     val listaTareas: LiveData<List<Tarea>> = _usuarioIdActual.switchMap { id ->
@@ -63,7 +63,7 @@ class VistaModeloTareas(application: Application) : AndroidViewModel(application
 
     /**
      * Cuando terminas una tarea, esta función la marca como "Hecha" en la base de datos.
-     * ¡También te regala 5 puntos de experiencia por tu esfuerzo!
+     * da 5 puntos para mascota
      * Los puntos se guardan por separado para cada usuario.
      */
     fun marcarComoTerminada(tarea: Tarea) {

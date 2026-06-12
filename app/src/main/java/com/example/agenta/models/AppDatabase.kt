@@ -6,13 +6,13 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 
 /**
- * Esta clase es el "Almacén Principal" o la Base de Datos de la aplicación.
- * Imaginalo como un archivo donde guardamos permanentemente las listas de usuarios y tareas.
+ * Esta clase  la Base de Datos de la aplicación.
+ * guardamos permanentemente las listas de usuarios y tareas.
  */
 @Database(entities = [Usuario::class, Tarea::class], version = 3)
 abstract class AppDatabase : RoomDatabase() {
     
-    // Estos son los "empleados" que saben cómo entrar a buscar usuarios o tareas al almacén
+
     abstract fun usuarioDao(): UsuarioDao
     abstract fun tareaDao(): TareaDao
 

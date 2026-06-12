@@ -11,7 +11,7 @@ import androidx.room.PrimaryKey
 data class Tarea(
     @PrimaryKey(autoGenerate = true) val id: Int = 0, // Un número único para cada tarea
     val usuarioId: Int,                              // A quién le pertenece esta tarea
-    val materia: String,                              // La clase o materia (Ej: Matemáticas)
+    val materia: String,                              // La materia
     val titulo: String,                               // El nombre de la tarea
     val fechaEntrega: String,                        // Cuándo hay que entregarla
     val descripcion: String,                          // Notas extras sobre la tarea

@@ -44,7 +44,7 @@ class AdaptadorTareas(
     }
 
     /**
-     * Aquí es donde "rellenamos" el cuadrito con la información real de una tarea.
+     * Aquí es donde rellenamos el cuadrito con la información real de una tarea.
      */
     override fun onBindViewHolder(holder: TareaViewHolder, position: Int) {
         val tarea = listaTareas[position]

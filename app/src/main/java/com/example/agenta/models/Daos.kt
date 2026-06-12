@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 
 /**
- * Estas interfaces son las "Órdenes de Trabajo" para la base de datos.
+ * Estas interfaces son las ordenes para la base de datos.
  * Definen exactamente qué podemos preguntarle o pedirle que guarde.
  */
 
