@@ -19,7 +19,7 @@ interface UsuarioDao {
     /**
      * Guarda a una persona nueva en la base de datos.
      */
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun registrar(usuario: Usuario): Long
 }
 

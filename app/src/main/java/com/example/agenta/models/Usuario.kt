@@ -9,9 +9,9 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "usuarios")
 data class Usuario(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val uid: String = "",                            // ID único de Firebase
-    val nombre: String,
-    val email: String = "",                          // Correo para entrar desde cualquier dispositivo
+    val uid: String = "",
+    val nombre: String = "",
+    val email: String = "",
     val telefono: String = "",
-    val contrasena: String
+    val contrasena: String = ""
 )

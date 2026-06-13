@@ -9,11 +9,11 @@ import androidx.room.PrimaryKey
  */
 @Entity(tableName = "tareas")
 data class Tarea(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0, // Un número único para cada tarea
-    val usuarioId: Int,                              // A quién le pertenece esta tarea
-    val materia: String,                              // La materia
-    val titulo: String,                               // El nombre de la tarea
-    val fechaEntrega: String,                        // Cuándo hay que entregarla
-    val descripcion: String,                          // Notas extras sobre la tarea
-    var estaHecha: Boolean = false                    // ¿Ya la terminó? (Sí o No)
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val usuarioId: Int = 0,
+    val materia: String = "",
+    val titulo: String = "",
+    val fechaEntrega: String = "",
+    val descripcion: String = "",
+    var estaHecha: Boolean = false
 )
