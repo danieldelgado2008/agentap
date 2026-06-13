@@ -33,8 +33,9 @@ interface TareaDao {
 
     /**
      * Guarda una tarea nueva en la lista.
+     * Si la tarea ya existe (mismo ID), la actualiza con los nuevos datos.
      */
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertar(tarea: Tarea): Long
 
     /**

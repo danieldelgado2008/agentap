@@ -19,13 +19,16 @@ import com.example.agenta.models.Usuario
 import com.example.agenta.models.VistaModeloTareas
 import kotlinx.coroutines.launch
 
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.tasks.await
+
 /**
  * Esta pantalla sirve para que los nuevos usuarios creen su cuenta.
- * Pide nombre, teléfono y contraseña, y los guarda para siempre en el celular.
  */
 class FragmentoRegistro : Fragment() {
 
     private lateinit var viewModel: VistaModeloTareas
+    private val auth = FirebaseAuth.getInstance()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -49,6 +52,7 @@ class FragmentoRegistro : Fragment() {
         val view = inflater.inflate(R.layout.fragmento_registro, container, false)
 
         val etNombre = view.findViewById<EditText>(R.id.etRegisterNombre)
+        val etEmail = view.findViewById<EditText>(R.id.etRegisterEmail)
         val etTelefono = view.findViewById<EditText>(R.id.etRegisterTelefono)
         val etContrasena = view.findViewById<EditText>(R.id.etRegisterContrasena)
         val btnRegistrar = view.findViewById<Button>(R.id.btnRegistrar)
@@ -56,33 +60,45 @@ class FragmentoRegistro : Fragment() {
         // al dar click en registrar
         btnRegistrar.setOnClickListener {
             val nombre = etNombre.text.toString().trim()
+            val email = etEmail.text.toString().trim()
             val telefono = etTelefono.text.toString().trim()
             val contrasena = etContrasena.text.toString().trim()
 
             // Solo registramos si no dejó ningún campo vacío
-            if (nombre.isNotEmpty() && telefono.isNotEmpty() && contrasena.isNotEmpty()) {
+            if (nombre.isNotEmpty() && email.isNotEmpty() && contrasena.isNotEmpty()) {
                 lifecycleScope.launch {
-                    // Creamos la "ficha" del nuevo usuario
-                    val nuevoUsuario = Usuario(nombre = nombre, telefono = telefono, contrasena = contrasena)
-                    
-                    // Le decimos al cerebro que lo guarde en la base de datos
-                    val id = viewModel.registrarUsuario(nuevoUsuario).toInt()
-                    
-                    // Activamos a este usuario como el actual
-                    viewModel.setUsuarioId(id)
+                    try {
+                        // 1. Crear usuario en Firebase Auth (Internet)
+                        val result = auth.createUserWithEmailAndPassword(email, contrasena).await()
+                        val firebaseUid = result.user?.uid ?: ""
 
-                    // Guardamos sus datos en la memoria del celular para que no tenga que volver a loguearse
-                    val prefs = requireActivity().getSharedPreferences("UserSettings", Context.MODE_PRIVATE)
-                    prefs.edit {
-                        putString("userName", nombre)
-                        putString("userPhone", telefono)
-                        putInt("currentUserId", id)
+                        // 2. Crear la ficha del usuario con su nuevo ID de internet
+                        val nuevoUsuario = Usuario(
+                            uid = firebaseUid,
+                            nombre = nombre,
+                            email = email,
+                            telefono = telefono,
+                            contrasena = contrasena
+                        )
+                        
+                        // 3. Guardar localmente
+                        val idLocal = viewModel.registrarUsuario(nuevoUsuario).toInt()
+                        viewModel.setUsuarioId(idLocal)
+
+                        // 4. Guardar datos en la memoria del celular
+                        val prefs = requireActivity().getSharedPreferences("UserSettings", Context.MODE_PRIVATE)
+                        prefs.edit {
+                            putString("userName", nombre)
+                            putString("userEmail", email)
+                            putInt("currentUserId", idLocal)
+                        }
+
+                        Toast.makeText(context, "¡Cuenta creada en la nube!", Toast.LENGTH_SHORT).show()
+                        findNavController().navigate(R.id.action_FragmentoRegistro_to_FragmentoTareas)
+                        
+                    } catch (e: Exception) {
+                        Toast.makeText(context, "Error: ${e.message}", Toast.LENGTH_LONG).show()
                     }
-
-                    Toast.makeText(context, "¡Bienvenido, $nombre!", Toast.LENGTH_SHORT).show()
-                    
-                    // 5. Lo mandamos directo a ver sus tareas
-                    findNavController().navigate(R.id.action_FragmentoRegistro_to_FragmentoTareas)
                 }
             } else {
                 Toast.makeText(context, "Por favor, completa todos los datos para continuar", Toast.LENGTH_SHORT).show()

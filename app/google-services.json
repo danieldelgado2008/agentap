@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "98839150823",
+    "project_id": "agenta-2728d",
+    "storage_bucket": "agenta-2728d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:98839150823:android:8650c1c911379d7ad96242",
+        "android_client_info": {
+          "package_name": "com.example.agenta"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhzfJ3qnGL5eadZpDjQ6U7e6IzdpF1mxM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

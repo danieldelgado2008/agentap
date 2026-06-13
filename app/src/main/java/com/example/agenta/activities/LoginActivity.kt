@@ -15,38 +15,32 @@ import androidx.lifecycle.lifecycleScope
 import com.example.agenta.R
 import com.example.agenta.models.VistaModeloTareas
 import kotlinx.coroutines.launch
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.tasks.await
 
 /**
  * Esta es la pantalla de "Inicio de Sesión". 
- * Su función principal es dejar que el usuario entre a su cuenta con su nombre y contraseña.
- * Si el usuario ya entró antes, esta pantalla lo detecta y lo manda directo a sus tareas.
  */
 class LoginActivity : AppCompatActivity() {
 
-    //  maneja los datos de las tareas y usuarios
     private lateinit var viewModel: VistaModeloTareas
+    private val auth = FirebaseAuth.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Revisar si el usuario ya tiene una sesión abierta en el celular.
-        // Si ya hay un ID de usuario guardado, significa que no necesita volver a loguearse.
-        val userPrefs = getSharedPreferences("UserSettings", Context.MODE_PRIVATE)
-        if (userPrefs.contains("currentUserId")) {
+        // Verificación de Auto-Login de Firebase
+        val firebaseUser = auth.currentUser
+        if (firebaseUser != null) {
             val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
-            finish() // Cerramos esta pantalla para que no pueda volver atrás al login
+            finish()
             return
         }
 
-        // Si no hay sesión, mostramos el diseño de la pantalla de login
         setContentView(R.layout.activity_login)
-
-        // Conectamos con el ViewModel (el administrador de datos)
         viewModel = ViewModelProvider(this)[VistaModeloTareas::class.java]
 
-        // Personalización visual.
-        // Buscamos si el usuario eligió un color de fondo especial en la configuración.
         val prefsSettings = getSharedPreferences("Settings", MODE_PRIVATE)
         val colorHex = prefsSettings.getString("backgroundColor", "#FFFFFF") ?: "#FFFFFF"
         try {
@@ -55,43 +49,38 @@ class LoginActivity : AppCompatActivity() {
             findViewById<LinearLayout>(R.id.layoutLogin)?.setBackgroundColor(Color.WHITE)
         }
 
-        // Referencias a los cuadritos de texto y botones de la pantalla
-        val etUsuario = findViewById<EditText>(R.id.etUsuario)
+        val etEmail = findViewById<EditText>(R.id.etUsuario)
         val etContrasena = findViewById<EditText>(R.id.etContrasena)
         val btnIniciarSesion = findViewById<Button>(R.id.btnIniciarSesion)
         val btnNuevaSesion = findViewById<Button>(R.id.btnNuevaSesion)
 
-        // lo que pasa cuando le das clic a "Iniciar Sesión"
         btnIniciarSesion.setOnClickListener {
-            val usuario = etUsuario.text.toString().trim()
+            val email = etEmail.text.toString().trim()
             val contrasena = etContrasena.text.toString().trim()
 
-            // Solo intentamos entrar si escribió algo en ambos campos
-            if (usuario.isNotEmpty() && contrasena.isNotEmpty()) {
-                // Le pedimos al ViewModel que busque en la base de datos si ese usuario existe
+            if (email.isNotEmpty() && contrasena.isNotEmpty()) {
                 lifecycleScope.launch {
-                    val user = viewModel.login(usuario, contrasena)
-                    if (user != null) {
-                        //  Guardamos los datos del usuario en la memoria del teléfono
-                        // para que la app sepa quién es mientras la usa.
+                    try {
+                        // 1. Intentar entrar con Firebase (Nube)
+                        auth.signInWithEmailAndPassword(email, contrasena).await()
+
+                        // 2. Guardar sesión local genérica para no romper la navegación actual
                         val prefs = getSharedPreferences("UserSettings", Context.MODE_PRIVATE)
                         prefs.edit {
-                            putInt("currentUserId", user.id)
-                            putString("userName", user.nombre)
-                            putString("userPhone", user.telefono)
+                            putString("userEmail", email)
+                            putInt("currentUserId", 1) 
                         }
 
-                        // Nos vamos a la pantalla principal
                         val intent = Intent(this@LoginActivity, MainActivity::class.java)
                         startActivity(intent)
                         finish()
-                    } else {
-                        // Si no lo encuentra, avisamos que algo está mal
-                        Toast.makeText(this@LoginActivity, "Usuario o contraseña incorrectos", Toast.LENGTH_SHORT).show()
+                        
+                    } catch (e: Exception) {
+                        Toast.makeText(this@LoginActivity, "Error: Correo o clave incorrectos", Toast.LENGTH_SHORT).show()
                     }
                 }
             } else {
-                Toast.makeText(this, "Por favor, escribe tu usuario y contraseña", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Por favor, escribe tu correo y contraseña", Toast.LENGTH_SHORT).show()
             }
         }
 

@@ -9,7 +9,7 @@ import androidx.room.RoomDatabase
  * Esta clase  la Base de Datos de la aplicación.
  * guardamos permanentemente las listas de usuarios y tareas.
  */
-@Database(entities = [Usuario::class, Tarea::class], version = 3)
+@Database(entities = [Usuario::class, Tarea::class], version = 4)
 abstract class AppDatabase : RoomDatabase() {
     
 

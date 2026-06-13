@@ -30,13 +30,13 @@
         android:layout_marginBottom="32dp"
         android:textColor="#6200EE"/>
 
-    <!-- Espacio donde el usuario escribe su nombre de cuenta -->
+    <!-- Espacio donde el usuario escribe su correo electrónico -->
     <EditText
         android:id="@+id/etUsuario"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Nombre de Usuario"
-        android:inputType="textPersonName"
+        android:hint="Correo electrónico"
+        android:inputType="textEmailAddress"
         android:layout_marginBottom="16dp"/>
 
     <!-- Espacio para la clave, oculta los caracteres con puntitos por seguridad -->

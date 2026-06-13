@@ -8,10 +8,12 @@ import androidx.lifecycle.*
 import com.example.agenta.notifications.GestorNotificaciones
 import kotlinx.coroutines.launch
 
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
+
 /**
  * Esta clase es el "Administrador de Datos" (ViewModel) de la aplicación.
- * Iorganiza todo: guarda tareas, busca usuarios y lleva la cuenta de los puntos.
- * Su ventaja es que los datos no se borran si giras la pantalla del celular.
  */
 class VistaModeloTareas(application: Application) : AndroidViewModel(application) {
 
@@ -19,6 +21,10 @@ class VistaModeloTareas(application: Application) : AndroidViewModel(application
     private val db = AppDatabase.getDatabase(application)
     private val usuarioDao = db.usuarioDao()
     private val tareaDao = db.tareaDao()
+    
+    // Herramientas de Firebase para la nube
+    private val auth = FirebaseAuth.getInstance()
+    private val firestore = FirebaseFirestore.getInstance()
 
     // Aquí guardamos el ID del usuario que está usando la app ahora mismo
     private val _usuarioIdActual = MutableLiveData<Int>()
@@ -40,6 +46,8 @@ class VistaModeloTareas(application: Application) : AndroidViewModel(application
      */
     fun setUsuarioId(id: Int) {
         _usuarioIdActual.value = id
+        // Cada vez que entramos, intentamos traer las tareas de la nube por si cambió de celular
+        sincronizarConNube()
     }
 
     /**
@@ -48,23 +56,60 @@ class VistaModeloTareas(application: Application) : AndroidViewModel(application
     fun getUsuarioId(): Int? = _usuarioIdActual.value
 
     /**
-     * Toma una tarea nueva, la guarda en la base de datos y pone una alarma 
-     * para que el celular te avise cuando sea hora de entregarla.
+     * Toma una tarea nueva, la guarda en la base de datos local y TAMBIÉN en la nube.
      */
     fun agregarTarea(nuevaTarea: Tarea) {
         viewModelScope.launch {
-            val id = tareaDao.insertar(nuevaTarea)
+            // Guardar localmente
+            val idLocal = tareaDao.insertar(nuevaTarea)
+            val tareaConId = nuevaTarea.copy(id = idLocal.toInt())
+            
+            // Guardar en la nube de Firebase si el usuario tiene sesión de Google activa
+            val firebaseUser = auth.currentUser
+            if (firebaseUser != null) {
+                firestore.collection("usuarios")
+                    .document(firebaseUser.uid)
+                    .collection("tareas")
+                    .document(idLocal.toString())
+                    .set(tareaConId)
+            }
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                // Le pasamos el ID real que le dio la base de datos para la notificación
-                GestorNotificaciones.programarNotificaciones(getApplication(), nuevaTarea.copy(id = id.toInt()))
+                GestorNotificaciones.programarNotificaciones(getApplication(), tareaConId)
             }
         }
     }
 
     /**
-     * Cuando terminas una tarea, esta función la marca como "Hecha" en la base de datos.
-     * da 5 puntos para mascota
-     * Los puntos se guardan por separado para cada usuario.
+     * Trae las tareas guardadas en internet hacia este celular.
+     */
+    private fun sincronizarConNube() {
+        val firebaseUser = auth.currentUser ?: return
+        
+        viewModelScope.launch {
+            try {
+                // Pedimos a Firebase todas las tareas de este usuario
+                val result = firestore.collection("usuarios")
+                    .document(firebaseUser.uid)
+                    .collection("tareas")
+                    .get()
+                    .await()
+                
+                for (doc in result.documents) {
+                    val tareaNube = doc.toObject(Tarea::class.java)
+                    if (tareaNube != null) {
+                        // Las guardamos en el celular para que se vean en la lista
+                        tareaDao.insertar(tareaNube)
+                    }
+                }
+            } catch (_: Exception) {
+                // Si no hay internet, simplemente no sincroniza
+            }
+        }
+    }
+
+    /**
+     * Cuando terminas una tarea, la marca como "Hecha" tanto en el celular como en internet.
      */
     fun marcarComoTerminada(tarea: Tarea) {
         viewModelScope.launch {
@@ -72,23 +117,26 @@ class VistaModeloTareas(application: Application) : AndroidViewModel(application
             val tareaActualizada = tarea.copy(estaHecha = true)
             tareaDao.actualizar(tareaActualizada)
             
-            // Buscamos los puntos que ya tenías y le sumamos 5
+            // Actualizar en la nube
+            val firebaseUser = auth.currentUser
+            if (firebaseUser != null) {
+                firestore.collection("usuarios")
+                    .document(firebaseUser.uid)
+                    .collection("tareas")
+                    .document(tarea.id.toString())
+                    .update("estaHecha", true)
+            }
+            
             val prefs = getApplication<Application>().getSharedPreferences("UserStats_$userId", Context.MODE_PRIVATE)
             val currentPoints = prefs.getInt("userPoints", 0)
             prefs.edit { putInt("userPoints", currentPoints + 5) }
         }
     }
 
-    /**
-     * Busca en la base de datos si existe alguien con ese nombre y contraseña.
-     */
     suspend fun login(nombre: String, contrasena: String): Usuario? {
         return usuarioDao.login(nombre, contrasena)
     }
 
-    /**
-     * Crea un perfil nuevo en la base de datos y nos da el número de ID que le asignó.
-     */
     suspend fun registrarUsuario(usuario: Usuario): Long {
         return usuarioDao.registrar(usuario)
     }

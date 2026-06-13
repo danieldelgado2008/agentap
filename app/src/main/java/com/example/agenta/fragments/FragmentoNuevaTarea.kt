@@ -1,5 +1,6 @@
 package com.example.agenta.fragments
 
+import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +14,8 @@ import androidx.navigation.fragment.findNavController
 import com.example.agenta.R
 import com.example.agenta.models.Tarea
 import com.example.agenta.models.VistaModeloTareas
+import java.util.Calendar
+import java.util.Locale
 
 /**
  * Esta pantalla sirve para "Anotar una nueva tarea". 
@@ -36,6 +39,13 @@ class FragmentoNuevaTarea : Fragment() {
         val etFechaEntrega = view.findViewById<EditText>(R.id.etFechaEntrega)
         val etEspecificaciones = view.findViewById<EditText>(R.id.etEspecificaciones)
         val btnGuardar = view.findViewById<Button>(R.id.btnGuardarTarea)
+
+        // PASO NUEVO: Configurar el calendario al tocar el campo de fecha
+        // Hacemos que el teclado no aparezca y en su lugar salga el calendario
+        etFechaEntrega.isFocusable = false
+        etFechaEntrega.setOnClickListener {
+            mostrarCalendario(etFechaEntrega)
+        }
 
         // click en guardar
         btnGuardar.setOnClickListener {
@@ -71,5 +81,27 @@ class FragmentoNuevaTarea : Fragment() {
         }
 
         return view
+    }
+
+    /**
+     * Muestra una ventana con un calendario para que el usuario elija el día.
+     */
+    private fun mostrarCalendario(editText: EditText) {
+        val calendario = Calendar.getInstance()
+        val anio = calendario.get(Calendar.YEAR)
+        val mes = calendario.get(Calendar.MONTH)
+        val dia = calendario.get(Calendar.DAY_OF_MONTH)
+
+        val selectorFecha = DatePickerDialog(requireContext(), { _, anioSeleccionado, mesSeleccionado, diaSeleccionado ->
+            // El mes empieza en 0, así que le sumamos 1
+            val mesFormateado = String.format(Locale.getDefault(), "%02d", mesSeleccionado + 1)
+            val diaFormateado = String.format(Locale.getDefault(), "%02d", diaSeleccionado)
+            
+            // Ponemos la fecha en el cuadrito de texto
+            val fechaFinal = "$diaFormateado/$mesFormateado/$anioSeleccionado"
+            editText.setText(fechaFinal)
+        }, anio, mes, dia)
+
+        selectorFecha.show()
     }
 }

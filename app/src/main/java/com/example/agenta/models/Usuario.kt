@@ -5,12 +5,13 @@ import androidx.room.PrimaryKey
 
 /**
  * Esta clase define la "Ficha de Usuario".
- * Es la estructura que tiene cada persona registrada en la base de datos.
  */
 @Entity(tableName = "usuarios")
 data class Usuario(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0, // Un número único para cada persona
-    val nombre: String,                              // El nombre que eligió el usuario
-    val telefono: String = "",                       // Su número de contacto
-    val contrasena: String                           // Su contraseña
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val uid: String = "",                            // ID único de Firebase
+    val nombre: String,
+    val email: String = "",                          // Correo para entrar desde cualquier dispositivo
+    val telefono: String = "",
+    val contrasena: String
 )
