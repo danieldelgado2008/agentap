@@ -40,7 +40,7 @@ class FragmentoNuevaTarea : Fragment() {
         val etEspecificaciones = view.findViewById<EditText>(R.id.etEspecificaciones)
         val btnGuardar = view.findViewById<Button>(R.id.btnGuardarTarea)
 
-        // PASO NUEVO: Configurar el calendario al tocar el campo de fecha
+        //  Configurar el calendario al tocar el campo de fecha
         // Hacemos que el teclado no aparezca y en su lugar salga el calendario
         etFechaEntrega.isFocusable = false
         etFechaEntrega.setOnClickListener {
